@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
+import { formatDay } from '../utils/formatDate'
 
 const CATEGORIES = ['Авиабилет', 'Отель', 'Поезд/автобус', 'Музей/экскурсия', 'Страховка', 'Виза', 'Другое']
 
@@ -55,7 +56,7 @@ export default function TicketsTab({ tripId }) {
           <li key={t.id} className="ticket-item">
             <span className="ticket-category">{t.category}</span>
             <strong>{t.title}</strong>
-            {t.date && <span className="muted">{t.date}</span>}
+            {t.date && <span className="muted">{formatDay(t.date)}</span>}
             {t.note && <span className="muted">{t.note}</span>}
             {t.fileBlob && <button className="secondary" onClick={() => openFile(t)}>Открыть файл</button>}
             <button className="icon-button" onClick={() => remove(t.id)}>✕</button>

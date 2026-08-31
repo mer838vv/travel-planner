@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchDailyWeather, weatherEmoji } from '../utils/weather'
+import { formatShort } from '../utils/formatDate'
 
 export default function WeatherStrip({ lat, lon, startDate, endDate }) {
   const [days, setDays] = useState(null)
@@ -20,7 +21,7 @@ export default function WeatherStrip({ lat, lon, startDate, endDate }) {
     <div className="weather-strip">
       {days.map((d) => (
         <div key={d.date} className="weather-day">
-          <span className="date">{d.date.slice(5)}</span>
+          <span className="date">{formatShort(d.date)}</span>
           <span className="emoji">{weatherEmoji(d.code)}</span>
           <span>{Math.round(d.min)}°–{Math.round(d.max)}°</span>
           {d.rainChance > 30 && <span className="rain">☔ {d.rainChance}%</span>}

@@ -5,6 +5,7 @@ import { db, dateRangeDays, DEFAULT_PACKING_TEMPLATE } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { exportAllData, importAllData } from '../utils/backup'
 import AgentImport from '../components/AgentImport'
+import { formatRange } from '../utils/formatDate'
 
 export default function TripList() {
   const trips = useLiveQuery(() => db.trips.orderBy('startDate').toArray(), [])
@@ -45,7 +46,7 @@ export default function TripList() {
           <li key={trip.id}>
             <Link to={`/trip/${trip.id}`}>
               <strong>{trip.title}</strong>
-              <span className="trip-dates">{trip.startDate} → {trip.endDate}</span>
+              <span className="trip-dates">{formatRange(trip.startDate, trip.endDate)}</span>
               {trip.destinationName && <span className="muted">{trip.destinationName}</span>}
             </Link>
           </li>
@@ -54,7 +55,7 @@ export default function TripList() {
 
       {!showForm && !showAgent && (
         <div className="main-actions">
-          <button className="warm big" onClick={() => setShowAgent(true)}>
+          <button className="big" onClick={() => setShowAgent(true)}>
             📋 Вставить план от агента
           </button>
           <button className="secondary big" onClick={() => setShowForm(true)}>

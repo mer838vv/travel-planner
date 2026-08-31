@@ -1,12 +1,35 @@
-/* Оформление ссылается только на переменные из index.css — обе темы работают
+/* Интерфейс из матового стекла поверх живого фона.
+   Цвета и размытие берутся из переменных в index.css — обе темы работают
    без отдельных правил здесь. */
+
+/* Общий приём для всех стеклянных поверхностей: полупрозрачная заливка,
+   размытие фона под ней, светлая кромка сверху и волосяной контур. */
+.card,
+.trip-list a,
+.poi-card,
+.ticket-item,
+.budget-list li,
+.packing-category li,
+.weather-day,
+.empty,
+.suggestions,
+.day-tabs button,
+.button-like {
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-hairline);
+  box-shadow:
+    inset 0 1px 0 var(--glass-border),
+    var(--shadow-card);
+}
 
 /* ---------- Каркас ---------- */
 
 .page {
   max-width: 760px;
   margin: 0 auto;
-  padding: 22px 16px 60px;
+  padding: 26px 16px 60px;
 }
 
 .page-header {
@@ -15,21 +38,30 @@
   align-items: flex-start;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
+
+/* Шапка лежит прямо на тёмной части неба — тут свой, светлый набор цветов. */
+.page-header h1 {
+  color: var(--on-sky);
+  text-shadow: 0 1px 14px rgba(6, 10, 28, 0.4);
+}
+
+.page-header .muted,
+.page-header p { color: var(--on-sky-muted); }
 
 .header-actions { display: flex; gap: 9px; flex-wrap: wrap; }
 
 .back-link {
   display: inline-block;
-  color: var(--muted);
+  color: var(--on-sky-muted);
   text-decoration: none;
   font-size: 13px;
   font-weight: 650;
   margin-bottom: 4px;
 }
 
-.back-link:active { color: var(--accent); }
+.back-link:active { color: var(--on-sky); }
 
 .button-like {
   display: inline-flex;
@@ -37,72 +69,65 @@
   font-size: 15px;
   font-weight: 650;
   color: var(--text);
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   border-radius: var(--r-md);
   padding: 11px 18px;
   cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 var(--card-top-light),
-    0 0 0 1px var(--border),
-    0 3px 0 var(--border-hi),
-    0 6px 14px rgba(16, 26, 44, 0.09);
   transition: transform 0.11s ease, box-shadow 0.11s ease;
 }
 
 .button-like:active {
-  transform: translateY(3px);
-  box-shadow:
-    inset 0 2px 6px rgba(16, 26, 44, 0.12),
-    0 0 0 1px var(--border),
-    0 0 0 var(--border-hi);
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 6px rgba(14, 23, 40, 0.13);
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-xl);
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
   margin: 16px 0;
-  box-shadow: var(--shadow-card);
 }
 
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
 .row > input, .row > select, .row > textarea { flex: 1 1 150px; width: auto; }
 .row > button, .row > .button-like { flex: 0 0 auto; }
 
-/* Главные действия — в столбик и во всю ширину: на телефоне это первое,
-   что нужно найти, а не искать среди мелких кнопок. */
+/* Формы вида <form class="card row">: .card задаёт колонку, .row — строку.
+   Без этого правила побеждает колонка, flex-basis полей читается как ВЫСОТА,
+   и поля вырастают в гигантские блоки, прижатые к правому краю. */
+.card.row { flex-direction: row; align-items: flex-end; }
+
 .main-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 18px 0 8px;
+  gap: 11px;
+  margin: 20px 0 8px;
 }
 
 button.big {
   width: 100%;
-  padding: 15px 20px;
+  padding: 16px 20px;
   font-size: 16px;
   border-radius: var(--r-lg);
 }
 
+/* Лежит прямо на небе, а не на карточке */
 .build-stamp {
-  margin: 30px 0 0;
+  margin: 32px 0 0;
   text-align: center;
-  color: var(--faint);
+  color: var(--on-sky-muted);
   font-size: 11px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
 }
 
 .empty {
   text-align: center;
-  color: var(--faint);
-  padding: 34px 18px;
-  border: 1.5px dashed var(--border-hi);
+  color: var(--muted);
+  padding: 34px 20px;
   border-radius: var(--r-xl);
+  border-style: dashed;
+  border-color: var(--faint);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -124,17 +149,14 @@ button.big {
   gap: 3px;
   position: relative;
   overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-xl);
-  padding: 17px 44px 17px 20px;
+  padding: 18px 46px 18px 22px;
   text-decoration: none;
   color: var(--text);
-  box-shadow: var(--shadow-card);
-  transition: transform 0.13s ease, box-shadow 0.13s ease, border-color 0.15s ease;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 
-/* Цветная полоска слева — карточка перестаёт быть просто прямоугольником */
+/* Цветной корешок слева — карточка перестаёт быть просто прямоугольником */
 .trip-list a::before {
   content: '';
   position: absolute;
@@ -142,13 +164,13 @@ button.big {
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--warm) 100%);
+  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 52%, var(--warm) 100%);
 }
 
 .trip-list a::after {
   content: '';
   position: absolute;
-  right: 20px;
+  right: 21px;
   top: 50%;
   width: 8px;
   height: 8px;
@@ -157,13 +179,12 @@ button.big {
   transform: translateY(-50%) rotate(45deg);
 }
 
-.trip-list a:hover { transform: translateY(-1px); box-shadow: var(--shadow-float); }
-
-.trip-list a:active {
-  transform: translateY(1px) scale(0.995);
-  box-shadow: var(--shadow-sunk);
-  border-color: var(--accent);
+.trip-list a:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 var(--glass-border), var(--shadow-float);
 }
+
+.trip-list a:active { transform: translateY(1px) scale(0.995); }
 
 .trip-list strong { font-size: 17px; letter-spacing: -0.015em; }
 
@@ -180,13 +201,13 @@ button.big {
   gap: 5px;
   max-height: 210px;
   overflow-y: auto;
-  background: var(--surface-sunk);
-  border: 1px solid var(--border);
   border-radius: var(--r-md);
 }
 
 .suggestions button {
-  background: var(--surface);
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   color: var(--text);
   text-align: left;
   width: 100%;
@@ -195,12 +216,12 @@ button.big {
   padding: 10px 13px;
   line-height: 1.35;
   border-radius: var(--r-sm);
-  box-shadow: 0 0 0 1px var(--border), 0 2px 0 var(--border-hi);
+  box-shadow: inset 0 1px 0 var(--glass-border), 0 0 0 1px var(--glass-hairline);
 }
 
 .suggestions button:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 1px var(--border), inset 0 2px 5px rgba(16, 26, 44, 0.1);
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(14, 23, 40, 0.12);
 }
 
 /* ---------- Вкладки ---------- */
@@ -208,10 +229,12 @@ button.big {
 .tabs {
   display: flex;
   gap: 4px;
-  margin: 20px 0 18px;
+  margin: 22px 0 18px;
   padding: 5px;
-  background: var(--surface-sunk);
-  border: 1px solid var(--border);
+  background: var(--glass-sunk);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-hairline);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sunk);
   overflow-x: auto;
@@ -224,6 +247,8 @@ button.big {
   flex: 1 1 auto;
   white-space: nowrap;
   background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   color: var(--muted);
   box-shadow: none;
   padding: 10px 14px;
@@ -237,9 +262,9 @@ button.big {
   color: #fff;
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   box-shadow:
-    inset 0 1px 0 var(--btn-top-light),
+    inset 0 1px 0 var(--top-light),
     0 2px 0 var(--accent-deep),
-    0 5px 14px var(--accent-glow);
+    0 6px 16px var(--accent-glow);
 }
 
 /* ---------- Дни поездки ---------- */
@@ -260,15 +285,10 @@ button.big {
   align-items: center;
   gap: 2px;
   white-space: nowrap;
-  padding: 10px 17px;
+  padding: 11px 18px;
   font-size: 14px;
-  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   color: var(--text);
-  box-shadow:
-    inset 0 1px 0 var(--card-top-light),
-    0 0 0 1px var(--border),
-    0 3px 0 var(--border-hi),
-    0 6px 14px rgba(16, 26, 44, 0.08);
+  border-radius: var(--r-md);
 }
 
 .day-tabs button .muted { font-size: 11px; }
@@ -277,12 +297,12 @@ button.big {
   color: #fff;
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   box-shadow:
-    inset 0 1px 0 var(--btn-top-light),
+    inset 0 1px 0 var(--top-light),
     0 3px 0 var(--accent-deep),
-    0 7px 18px var(--accent-glow);
+    0 8px 20px var(--accent-glow);
 }
 
-.day-tabs button.active .muted { color: rgba(255, 255, 255, 0.85); }
+.day-tabs button.active .muted { color: rgba(255, 255, 255, 0.86); }
 
 /* ---------- Маршрут ---------- */
 
@@ -291,11 +311,11 @@ button.big {
 .map-wrap {
   border-radius: var(--r-xl);
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-hairline);
   box-shadow: var(--shadow-card);
 }
 
-.leaflet-container { background: var(--surface-2); }
+.leaflet-container { background: var(--glass-sunk); }
 
 .map-placeholder {
   height: 210px;
@@ -304,16 +324,15 @@ button.big {
   justify-content: center;
   color: var(--faint);
   font-size: 14px;
-  background: var(--surface-2);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
 }
 
 .poi-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-xl);
-  padding: 16px 18px;
+  padding: 17px 19px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow-card);
 }
 
 .poi-header { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
@@ -332,8 +351,8 @@ button.big {
   font-weight: 750;
   flex-shrink: 0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 2px 7px var(--accent-glow);
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 3px 9px var(--accent-glow);
 }
 
 .poi-meta { margin-left: auto; display: flex; gap: 7px; flex-wrap: wrap; }
@@ -342,8 +361,8 @@ button.big {
   font-size: 12px;
   font-weight: 650;
   color: var(--muted);
-  background: var(--surface-sunk);
-  border: 1px solid var(--border);
+  background: var(--glass-sunk);
+  border: 1px solid var(--glass-hairline);
   border-radius: 999px;
   padding: 3px 11px;
 }
@@ -376,18 +395,15 @@ button.big {
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 10px 13px;
+  padding: 11px 14px;
   font-size: 12px;
   font-weight: 650;
-  min-width: 70px;
-  box-shadow: var(--shadow-card);
+  min-width: 72px;
 }
 
 .weather-day .date { color: var(--faint); font-size: 11px; }
-.weather-day .emoji { font-size: 22px; line-height: 1.2; }
+.weather-day .emoji { font-size: 23px; line-height: 1.2; }
 .weather-day .rain { color: var(--accent); font-size: 11px; }
 
 /* ---------- Билеты и бюджет ---------- */
@@ -405,24 +421,21 @@ button.big {
   display: flex;
   align-items: center;
   gap: 11px;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  padding: 14px 16px;
+  padding: 15px 17px;
   flex-wrap: wrap;
-  box-shadow: var(--shadow-card);
 }
 
 .ticket-item strong, .budget-list strong { font-size: 15px; }
 
 .ticket-category, .budget-category {
-  background: var(--surface-sunk);
-  border: 1px solid var(--border-hi);
+  background: var(--glass-sunk);
+  border: 1px solid var(--glass-hairline);
   border-radius: 999px;
   padding: 4px 11px;
   font-size: 11px;
   font-weight: 750;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -440,8 +453,8 @@ button.big {
 .progress-bar {
   height: 10px;
   border-radius: 999px;
-  background: var(--surface-sunk);
-  border: 1px solid var(--border);
+  background: var(--glass-sunk);
+  border: 1px solid var(--glass-hairline);
   box-shadow: var(--shadow-sunk);
   overflow: hidden;
   margin: 6px 0 18px;
@@ -451,17 +464,11 @@ button.big {
   height: 100%;
   border-radius: 999px;
   background: linear-gradient(90deg, var(--green) 0%, var(--green-hi) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
   transition: width 0.35s ease;
 }
 
-.packing-category h3 {
-  margin: 20px 0 9px;
-  color: var(--faint);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 12px;
-}
+.packing-category h3 { margin: 22px 0 9px; color: var(--faint); }
 
 .packing-category ul {
   list-style: none;
@@ -477,11 +484,8 @@ button.big {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 11px 14px;
-  box-shadow: var(--shadow-card);
+  padding: 12px 15px;
   transition: opacity 0.2s ease;
 }
 
@@ -504,13 +508,13 @@ button.big {
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   color: #fff;
   border-radius: var(--r-md);
-  padding: 12px 19px;
+  padding: 12px 20px;
   font-weight: 750;
   font-size: 17px;
   box-shadow:
-    inset 0 1px 0 var(--btn-top-light),
+    inset 0 1px 0 var(--top-light),
     0 3px 0 var(--accent-deep),
-    0 8px 18px var(--accent-glow);
+    0 9px 22px var(--accent-glow);
 }
 
 /* ---------- Импорт от агента ---------- */
@@ -532,14 +536,14 @@ button.big {
 }
 
 .agent-status.ok {
-  background: rgba(22, 163, 74, 0.11);
-  border: 1px solid rgba(22, 163, 74, 0.35);
+  background: rgba(18, 161, 80, 0.13);
+  border: 1px solid rgba(18, 161, 80, 0.36);
   color: var(--green);
 }
 
 .agent-status.err {
-  background: rgba(224, 56, 74, 0.1);
-  border: 1px solid rgba(224, 56, 74, 0.32);
+  background: rgba(224, 56, 74, 0.12);
+  border: 1px solid rgba(224, 56, 74, 0.34);
   color: var(--danger);
 }
 

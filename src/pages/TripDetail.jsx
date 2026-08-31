@@ -7,6 +7,7 @@ import TicketsTab from '../components/TicketsTab'
 import PackingTab from '../components/PackingTab'
 import BudgetTab from '../components/BudgetTab'
 import WeatherStrip from '../components/WeatherStrip'
+import { formatRange } from '../utils/formatDate'
 
 const TABS = [
   { key: 'route', label: 'Маршрут' },
@@ -29,7 +30,7 @@ export default function TripDetail() {
         <div>
           <Link to="/" className="back-link">← Все поездки</Link>
           <h1>{trip.title}</h1>
-          <p className="muted">{trip.startDate} → {trip.endDate}{trip.destinationName ? ` · ${trip.destinationName}` : ''}</p>
+          <p className="muted">{formatRange(trip.startDate, trip.endDate)}{trip.destinationName ? ` · ${trip.destinationName}` : ''}</p>
         </div>
       </div>
 

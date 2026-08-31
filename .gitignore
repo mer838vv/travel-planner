@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Скриншоты пересоздаются командой node scripts/screenshot.mjs
+screenshots

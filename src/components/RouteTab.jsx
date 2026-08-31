@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { db } from '../db'
 import { searchPlace } from '../utils/geocode'
+import { formatShort } from '../utils/formatDate'
 
 export default function RouteTab({ trip }) {
   const days = useLiveQuery(() => db.days.where('tripId').equals(trip.id).sortBy('order'), [trip.id])
@@ -32,7 +33,7 @@ export default function RouteTab({ trip }) {
             onClick={() => setActiveDayId(day.id)}
           >
             День {i + 1}
-            <span className="muted">{day.date.slice(5)}</span>
+            <span className="muted">{formatShort(day.date)}</span>
           </button>
         ))}
       </div>
