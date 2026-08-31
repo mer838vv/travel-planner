@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import { db } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { formatShort } from '../utils/formatDate'
+import { resolveKind, kindMeta, isLogistics } from '../utils/poiKind'
 
 export default function RouteTab({ trip }) {
   const days = useLiveQuery(() => db.days.where('tripId').equals(trip.id).sortBy('order'), [trip.id])
@@ -41,8 +42,8 @@ export default function RouteTab({ trip }) {
       <div className="route-layout">
         <div className="poi-list">
           {pois?.length === 0 && <div className="empty">На этот день ещё нет точек.</div>}
-          {pois?.map((poi, i) => (
-            <PoiCard key={poi.id} poi={poi} index={i} />
+          {pois?.map((poi) => (
+            <PoiCard key={poi.id} poi={poi} />
           ))}
           {currentDayId && <AddPoiForm dayId={currentDayId} tripId={trip.id} nextOrder={pois?.length || 0} />}
         </div>
@@ -71,7 +72,7 @@ export default function RouteTab({ trip }) {
   )
 }
 
-function PoiCard({ poi, index }) {
+function PoiCard({ poi }) {
   const [editing, setEditing] = useState(false)
   const [description, setDescription] = useState(poi.description || '')
 
@@ -84,10 +85,15 @@ function PoiCard({ poi, index }) {
     setEditing(false)
   }
 
+  const kind = resolveKind(poi)
+  const meta = kindMeta(kind)
+
   return (
-    <div className="poi-card">
+    <div className={`poi-card kind-${kind}${isLogistics(kind) ? ' logistics' : ''}`}>
       <div className="poi-header">
-        <span className="poi-index">{index + 1}</span>
+        {/* Иконка вместо порядкового номера: тип события должен читаться
+            раньше текста, а порядок и так задан положением в списке. */}
+        <span className="poi-index" title={meta.label}>{meta.icon}</span>
         <strong>{poi.name}</strong>
         <div className="poi-meta">
           {poi.visitTime && <span>🕒 {poi.visitTime}</span>}

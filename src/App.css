@@ -356,21 +356,69 @@ button.big {
 .poi-header { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
 .poi-header strong { font-size: 16px; letter-spacing: -0.015em; }
 
+/* ---------- Типы точек маршрута ----------
+   Перелёт, заселение и прогулка — события разной природы, и глаз должен
+   различать их до чтения текста. Тип задаёт цвет корешка и подложку
+   иконки; логистика вдобавок получает более плотный фон, потому что её
+   нельзя пропустить, а достопримечательность можно. */
+
+.poi-card {
+  position: relative;
+  overflow: hidden;
+  --kind: var(--faint);
+  --kind-soft: rgba(139, 151, 174, 0.14);
+}
+
+.poi-card.kind-flight { --kind: var(--accent); --kind-soft: rgba(53, 99, 255, 0.13); }
+.poi-card.kind-transfer { --kind: var(--warm); --kind-soft: rgba(255, 122, 53, 0.14); }
+.poi-card.kind-hotel { --kind: #8b5cf6; --kind-soft: rgba(139, 92, 246, 0.14); }
+.poi-card.kind-food { --kind: var(--green); --kind-soft: rgba(18, 161, 80, 0.13); }
+.poi-card.kind-nature { --kind: #0d9488; --kind-soft: rgba(13, 148, 136, 0.13); }
+.poi-card.kind-sight { --kind: #0891b2; --kind-soft: rgba(8, 145, 178, 0.13); }
+.poi-card.kind-shop { --kind: #db2777; --kind-soft: rgba(219, 39, 119, 0.12); }
+
+/* Цветной корешок слева — тип виден даже боковым зрением при прокрутке */
+.poi-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--kind);
+}
+
+.poi-card { padding-left: 22px; }
+
+/* Логистика заметнее: её пропуск стоит рейса или ночёвки.
+   Выделяем плотностью, а не заливкой под текстом: цветной градиент под
+   описанием съедал контраст, и самое важное читалось хуже всего. */
+.poi-card.logistics {
+  background: var(--glass-strong);
+  border-color: var(--kind);
+  box-shadow:
+    inset 0 1px 0 var(--glass-border),
+    0 0 0 1px var(--kind),
+    var(--shadow-float);
+}
+
+.poi-card.logistics::before { width: 5px; }
+
+/* Заголовок логистики весомее: на него смотрят в спешке */
+.poi-card.logistics .poi-header strong { font-size: 17px; }
+
 .poi-index {
-  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent-lo) 100%);
-  color: #fff;
+  background: var(--kind-soft);
+  border: 1px solid var(--kind);
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 750;
+  font-size: 15px;
+  line-height: 1;
   flex-shrink: 0;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.38),
-    0 3px 9px var(--accent-glow);
 }
 
 .poi-meta { margin-left: auto; display: flex; gap: 7px; flex-wrap: wrap; }
@@ -387,7 +435,9 @@ button.big {
 
 .poi-description {
   margin: 11px 0 0;
-  color: var(--muted);
+  /* Не --muted: описание на цветной карточке должно оставаться читаемым */
+  color: var(--text);
+  opacity: 0.78;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.55;

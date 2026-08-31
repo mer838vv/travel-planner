@@ -25,7 +25,11 @@ const PLAN = {
   days: [{
     date: '2026-09-01',
     pois: [
-      { name: 'Рим, Фьюмичино (FCO)', description: 'TK1362 в 07:05. Регистрация пройдена, места 23B и 23A.', lat: 41.8153911, lon: 12.2264848, visitTime: '05:00', durationMin: 125 },
+      { name: 'Hilton Garden Inn Rome Colosseum — выезд', description: 'Via Emanuele Filiberto 173. Uber на 04:10, 55 €.', lat: 41.8899752, lon: 12.506672, visitTime: '04:20', durationMin: 40, cost: '55 €' },
+      { name: 'Рим, Фьюмичино (FCO) — вылет', description: 'TK1362 в 07:05, Терминал 3. Регистрация пройдена, места 23B и 23A.', lat: 41.8153911, lon: 12.2264848, visitTime: '05:00', durationMin: 120 },
+      { name: 'Колизей', description: 'Амфитеатр 80 года. Билет общий с Форумом, действует два дня.', lat: 41.8902, lon: 12.4922, visitTime: '09:00', durationMin: 120, cost: '18 €' },
+      { name: 'Устричная ферма', description: 'Устрицы от 1 € у производителя, а не в ресторане.', lat: 41.7712, lon: 12.2311, visitTime: '13:00', durationMin: 90 },
+      { name: 'Вилла Боргезе, парк', description: 'Прогулка после обеда, вход свободный.', lat: 41.9142, lon: 12.4922, visitTime: '15:00', durationMin: 60 },
       { name: 'Стамбул (IST) — пересадка', description: 'Прилёт 10:45, вылет на Москву 15:50. Две разные брони.', lat: 41.2748684, lon: 28.7322749, visitTime: '10:45', durationMin: 305 },
     ],
   }],
@@ -128,6 +132,14 @@ for (const scheme of ['light', 'dark']) {
   await page.waitForURL(/\/trip\//, { timeout: 15000 })
   await page.waitForTimeout(2500)                       // карта и погода
   await page.screenshot({ path: `${outDir}${scheme}-3-маршрут.png` })
+
+  // Список точек дня целиком: ради него и делалась типизация карточек
+  const poiList = page.locator('.poi-list')
+  if (await poiList.count()) {
+    await poiList.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await poiList.screenshot({ path: `${outDir}${scheme}-3a-точки-дня.png` })
+  }
 
   // Блок трансфера длиннее экрана — снимаем его целиком отдельно
   const transfer = page.locator('.transfer-card')
