@@ -55,7 +55,14 @@
 
   --text: #0e1728;
   --muted: #46566f;
-  --faint: #8391ae;
+
+  /* Размеры и вес текста в карточках. Контраст был AAA, а читалось плохо:
+     дело было в мелком тонком шрифте, а не в цвете. 14px/400 ниже и
+     рекомендаций Apple (17px), и Material (16px). */
+  --fs-body: 15.5px;
+  --fw-body: 450;
+  --fs-chip: 13px;
+  --faint: #687590;
 
   --accent: #3563ff;
   --accent-hi: #6f92ff;
@@ -495,7 +502,7 @@ label {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
   color: var(--muted);
   flex: 1;
@@ -504,5 +511,5 @@ label {
 
 a { color: var(--accent); }
 
-.muted { color: var(--muted); font-size: 13px; font-weight: 400; }
-.faint { color: var(--faint); font-size: 12px; }
+.muted { color: var(--muted); font-size: 14px; font-weight: 400; }
+.faint { color: var(--faint); font-size: 13px; }
