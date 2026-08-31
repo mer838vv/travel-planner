@@ -805,13 +805,51 @@ button.big {
   gap: 10px;
 }
 
-.ticket-item, .budget-list li {
+.budget-list li {
   display: flex;
   align-items: center;
   gap: 11px;
   border-radius: var(--r-lg);
   padding: 15px 17px;
   flex-wrap: wrap;
+}
+
+/* Билет — карточка в три яруса: суть, заметка, действия. Раньше всё лежало
+   одной строкой с переносами, и кнопки терялись среди текста. */
+.ticket-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: var(--r-lg);
+  padding: 15px 17px;
+}
+
+.ticket-main { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.ticket-note {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-body);
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.ticket-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.ticket-actions .icon-button { margin-left: auto; }
+
+.file-picker.compact {
+  flex: 0 1 auto;
+  min-height: 0;
+  padding: 9px 14px;
+  font-size: 14px;
+  border-width: 1.5px;
 }
 
 .ticket-item strong, .budget-list strong { font-size: 15px; }

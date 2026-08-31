@@ -44,6 +44,40 @@ export default function TicketsTab({ tripId }) {
     window.open(url, '_blank')
   }
 
+  /**
+   * Прикрепить файл к уже сохранённому билету.
+   *
+   * Файл кладётся прямо в базу устройства, поэтому посадочный остаётся
+   * доступен без интернета — а именно в самолёте и в очереди на контроль
+   * он и нужен.
+   */
+  function AttachFile({ ticket, label }) {
+    const [busy, setBusy] = useState(false)
+
+    async function attach(e) {
+      const picked = e.target.files[0]
+      // Сброс значения: без него повторный выбор того же файла не
+      // вызовет change и кнопка будет выглядеть сломанной.
+      e.target.value = ''
+      if (!picked) return
+
+      setBusy(true)
+      await db.tickets.update(ticket.id, {
+        fileBlob: picked,
+        fileName: picked.name,
+        fileType: picked.type,
+      })
+      setBusy(false)
+    }
+
+    return (
+      <label className="file-picker compact">
+        <input type="file" accept="image/*,application/pdf" onChange={attach} />
+        <span>{busy ? 'Сохраняю…' : label}</span>
+      </label>
+    )
+  }
+
   return (
     <div className="tickets-tab">
       <form className="card row" onSubmit={handleAdd}>
@@ -70,12 +104,30 @@ export default function TicketsTab({ tripId }) {
       <ul className="ticket-list">
         {tickets?.map((t) => (
           <li key={t.id} className="ticket-item">
-            <span className="ticket-category">{t.category}</span>
-            <strong>{t.title}</strong>
-            {t.date && <span className="muted">{formatDay(t.date)}</span>}
-            {t.note && <span className="muted">{t.note}</span>}
-            {t.fileBlob && <button className="secondary" onClick={() => openFile(t)}>Открыть файл</button>}
-            <DeleteButton onDelete={() => remove(t.id)} label={`Удалить билет «${t.title}»`} />
+            <div className="ticket-main">
+              <span className="ticket-category">{t.category}</span>
+              <strong>{t.title}</strong>
+              {t.date && <span className="muted">{formatDay(t.date)}</span>}
+            </div>
+
+            {t.note && <p className="ticket-note">{t.note}</p>}
+
+            <div className="ticket-actions">
+              {t.fileBlob ? (
+                <>
+                  <button className="secondary" onClick={() => openFile(t)}>
+                    📄 {t.fileName || 'Открыть файл'}
+                  </button>
+                  <AttachFile ticket={t} label="Заменить" />
+                </>
+              ) : (
+                /* Приложить скан к уже существующему билету раньше было
+                   нельзя: файл принимался только при создании вручную, и к
+                   билетам из плана агента посадочный не прикреплялся никак. */
+                <AttachFile ticket={t} label="📎 Приложить посадочный или скан" />
+              )}
+              <DeleteButton onDelete={() => remove(t.id)} label={`Удалить билет «${t.title}»`} />
+            </div>
           </li>
         ))}
         {tickets?.length === 0 && <div className="empty">Билетов и документов пока нет.</div>}
