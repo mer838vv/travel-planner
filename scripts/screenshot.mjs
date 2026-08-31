@@ -38,7 +38,30 @@ const PLAN = {
         from: { iata: 'FCO', name: 'Рим, Фьюмичино', terminal: '1', address: 'Aeroporto di Fiumicino', tz: 'Europe/Rome' },
         to: { iata: 'IST', name: 'Стамбул', tz: 'Europe/Istanbul' },
         departLocal: '2026-09-01T07:05', arriveLocal: '2026-09-01T10:45',
-        leaveAtLocal: '2026-09-01T04:30', leaveNote: 'дорога 45 мин + запас на пробки + контроль',
+        leaveAtLocal: '2026-09-01T04:20', leaveNote: 'дорога 40 мин, быть в аэропорту к 05:00',
+        transfer: {
+          from: 'Hilton Garden Inn Rome Colosseum, Via Emanuele Filiberto 173',
+          durationMin: 40,
+          warnings: ['В обычном такси сразу сказать «tariffa fissa Fiumicino», иначе включат счётчик и с ночной надбавкой выйдет дороже.'],
+          options: [
+            {
+              name: 'Uber', price: 55, currency: 'EUR', priceRub: 5531, unit: 'за машину',
+              note: 'Цена зафиксирована в приложении до заказа, надбавки за вызов нет.',
+              howTo: 'Заказать на 04:10 из приложения, машина подъедет ко входу отеля.',
+              url: 'https://m.uber.com/',
+            },
+            {
+              name: 'Такси по фиксированному тарифу', price: 58.5, currency: 'EUR', priceRub: 5883, unit: 'за машину',
+              note: 'Официальные 55 € плюс 3,50 € за вызов по телефону или приложению.',
+              howTo: 'Попросить ресепшн заказать на 04:10 — цена та же, язык не нужен.',
+              phone: '+39 06 3570',
+              phrase: 'Buonasera! Vorrei prenotare un taxi per domattina alle 04:10, per l aeroporto di Fiumicino. Tariffa fissa 55 euro, per favore.',
+              phraseTranslation: 'Добрый вечер! Хочу заказать такси на завтра на 04:10 в аэропорт Фьюмичино. По фиксированному тарифу 55 евро, пожалуйста.',
+            },
+            { name: 'Частный трансфер (NCC)', price: 75, currency: 'EUR', unit: 'за машину', note: 'Смысла нет при работающем фиксе и Uber.' },
+            { name: 'Bolt', unavailable: true, note: 'В Риме не работает.' },
+          ],
+        },
       },
     },
     {
@@ -105,6 +128,14 @@ for (const scheme of ['light', 'dark']) {
   await page.waitForURL(/\/trip\//, { timeout: 15000 })
   await page.waitForTimeout(2500)                       // карта и погода
   await page.screenshot({ path: `${outDir}${scheme}-3-маршрут.png` })
+
+  // Блок трансфера длиннее экрана — снимаем его целиком отдельно
+  const transfer = page.locator('.transfer-card')
+  if (await transfer.count()) {
+    await transfer.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(300)
+    await transfer.screenshot({ path: `${outDir}${scheme}-3b-трансфер.png` })
+  }
 
   for (const [tab, file] of [['Билеты', '4-билеты'], ['Сборы', '5-сборы'], ['Бюджет', '6-бюджет']]) {
     await page.getByRole('button', { name: tab, exact: true }).click()

@@ -38,6 +38,7 @@ export function parseSegments(tickets = []) {
         leaveAt: instant(f.leaveAtLocal, f.from),
         leaveAtLocal: f.leaveAtLocal || null,
         leaveNote: f.leaveNote || null,
+        transfer: f.transfer || null,
       }
     })
     .sort((a, b) => {

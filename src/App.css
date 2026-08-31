@@ -548,6 +548,137 @@ button.big {
   .connection-note.risky { color: var(--warm-hi); }
 }
 
+/* ---------- Трансфер в аэропорт ---------- */
+
+.transfer-card {
+  border-top: 1px solid var(--glass-hairline);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.transfer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.transfer-head h3 { margin: 0; color: var(--muted); }
+.transfer-from { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+.transfer-options { display: flex; flex-direction: column; gap: 9px; }
+
+.transfer-option {
+  border-radius: var(--r-md);
+  border: 1px solid var(--glass-hairline);
+  background: var(--glass-sunk);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* Рекомендованный вариант выделен, чтобы решение читалось мгновенно */
+.transfer-option.best {
+  border-color: var(--green);
+  background: rgba(18, 161, 80, 0.1);
+}
+
+.transfer-option.off { opacity: 0.5; }
+
+.transfer-option-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.transfer-option-head strong { font-size: 15px; }
+
+.transfer-badge {
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--green);
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+
+.transfer-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.transfer-price { font-size: 18px; font-weight: 780; letter-spacing: -0.01em; }
+
+/* Надбавка к минимуму — главное число для выбора, поэтому цветом */
+.transfer-delta {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--warm-deep);
+  background: rgba(255, 122, 53, 0.14);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.transfer-note, .transfer-howto {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.transfer-howto { color: var(--text); font-weight: 600; }
+
+.transfer-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.transfer-actions button { font-size: 13px; padding: 8px 13px; }
+
+.transfer-call, .transfer-link {
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--accent);
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--r-sm);
+  padding: 8px 13px;
+  white-space: nowrap;
+}
+
+.transfer-phrase {
+  background: var(--glass-strong);
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+
+.transfer-phrase p { margin: 0; font-size: 13px; line-height: 1.45; }
+.transfer-translation { margin-top: 6px !important; color: var(--muted); font-size: 12.5px !important; }
+
+.transfer-warning {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--warm-deep);
+  background: rgba(255, 122, 53, 0.12);
+  border: 1px solid rgba(255, 122, 53, 0.32);
+  border-radius: var(--r-sm);
+  padding: 9px 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .transfer-delta, .transfer-warning { color: var(--warm-hi); }
+}
+
 /* ---------- Погода ---------- */
 
 .weather-strip {

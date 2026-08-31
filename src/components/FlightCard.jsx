@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { countdown, localClock, formatDuration } from '../utils/time'
 import { taxiAddress } from '../utils/flights'
+import TransferCard from './TransferCard'
 
 /** Тикающее «сейчас»: карточка живёт отсчётами, их надо обновлять. */
 function useNow(intervalMs = 30_000) {
@@ -85,6 +86,8 @@ export default function FlightCard({ segment, connection }) {
       )}
 
       {connection && <ConnectionNote connection={connection} />}
+
+      <TransferCard transfer={segment.transfer} />
     </div>
   )
 }

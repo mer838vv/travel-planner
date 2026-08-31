@@ -1,6 +1,7 @@
 // Расширение .js обязательно: тесты гоняются голым node, который, в отличие
 // от Vite, не достраивает расширения сам.
 import { db, dateRangeDays } from '../db.js'
+import { normalizeTransfer } from './transfer.js'
 
 /**
  * Приём готового плана поездки от агента (Claude Code со скиллами
@@ -105,6 +106,7 @@ function normalizeFlight(raw) {
     checkinClosesLocal: localTime(raw.checkinClosesLocal),
     leaveAtLocal: localTime(raw.leaveAtLocal),
     leaveNote: raw.leaveNote ? String(raw.leaveNote) : null,
+    transfer: normalizeTransfer(raw.transfer),
   }
 }
 
