@@ -1,47 +1,70 @@
+/*
+ * Тема. Светлая — основная: маршрут чаще всего смотрят на улице днём, и на
+ * ярком солнце тёмный экран не читается. Тёмная включается сама, когда в
+ * системе выбран тёмный режим (вечер, самолёт).
+ *
+ * Всё оформление ссылается только на переменные ниже, поэтому тема меняется
+ * целиком, без правок в компонентах.
+ */
+
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
 
-  /* Палитра */
-  --bg-deep: #070a12;
-  --bg: #0c111c;
-  --surface: #141b2a;
-  --surface-hi: #1b2436;
-  --border: #253044;
-  --border-hi: #33415c;
+  /* Фон: тёплый рассветный градиент вместо плоской заливки */
+  --bg-a: #eaf0fb;
+  --bg-b: #f7f9fd;
+  --glow-1: rgba(99, 132, 255, 0.28);
+  --glow-2: rgba(255, 176, 122, 0.24);
 
-  --text: #eaeff8;
-  --muted: #8d99b3;
-  --faint: #5d6883;
+  --surface: #ffffff;
+  --surface-2: #f4f7fc;
+  --surface-sunk: #eef2f9;
 
-  --accent: #3b82f6;
-  --accent-hi: #60a5fa;
-  --accent-lo: #1d4ed8;
-  --accent-deep: #14329c;
+  --text: #101a2c;
+  --muted: #56658a;
+  --faint: #8b97b3;
 
-  --green: #22c55e;
-  --green-lo: #15803d;
-  --amber: #f59e0b;
-  --danger: #ef4444;
+  --border: #e0e7f2;
+  --border-hi: #cbd6e8;
 
-  /* Скругления и тени */
+  --accent: #2f6bff;
+  --accent-hi: #6094ff;
+  --accent-lo: #1c4fdb;
+  --accent-deep: #1739a6;
+  --accent-glow: rgba(47, 107, 255, 0.3);
+
+  --warm: #ff8a3d;
+  --warm-hi: #ffab6b;
+  --warm-deep: #c25411;
+
+  --green: #16a34a;
+  --green-hi: #4ade80;
+  --green-deep: #14532d;
+  --danger: #e0384a;
+  --danger-hi: #f87171;
+  --danger-deep: #9f1239;
+
   --r-sm: 10px;
   --r-md: 14px;
   --r-lg: 20px;
-
-  --shadow-raised:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 6px 16px rgba(0, 0, 0, 0.34);
+  --r-xl: 26px;
 
   --shadow-card:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 2px 6px rgba(0, 0, 0, 0.32),
-    0 12px 28px rgba(0, 0, 0, 0.26);
+    0 1px 2px rgba(16, 26, 44, 0.05),
+    0 4px 10px rgba(16, 26, 44, 0.05),
+    0 14px 30px rgba(16, 26, 44, 0.06);
 
-  /* Утопленные поля: свет сверху падает внутрь — противоположность выпуклой кнопке */
-  --shadow-inset:
-    inset 0 2px 5px rgba(0, 0, 0, 0.5),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-float:
+    0 2px 4px rgba(16, 26, 44, 0.07),
+    0 10px 24px rgba(16, 26, 44, 0.1),
+    0 24px 50px rgba(16, 26, 44, 0.08);
+
+  --shadow-sunk:
+    inset 0 2px 4px rgba(16, 26, 44, 0.07),
+    inset 0 0 0 1px rgba(16, 26, 44, 0.02);
+
+  --btn-top-light: rgba(255, 255, 255, 0.4);
+  --card-top-light: rgba(255, 255, 255, 0.9);
 
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
   font-synthesis: none;
@@ -49,138 +72,174 @@
   -webkit-font-smoothing: antialiased;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Не чёрный, а глубокий сине-фиолетовый — ночное небо, а не выключенный экран */
+    --bg-a: #171d33;
+    --bg-b: #0e1220;
+    --glow-1: rgba(94, 118, 255, 0.22);
+    --glow-2: rgba(255, 138, 61, 0.12);
+
+    --surface: #1d2338;
+    --surface-2: #232a42;
+    --surface-sunk: #141930;
+
+    --text: #eef1fa;
+    --muted: #9aa6c4;
+    --faint: #6e7b9c;
+
+    --border: #2e3654;
+    --border-hi: #3d4770;
+
+    --accent: #4d7dff;
+    --accent-hi: #7ba3ff;
+    --accent-lo: #2d5ae0;
+    --accent-deep: #1c3aa0;
+    --accent-glow: rgba(77, 125, 255, 0.4);
+
+    --green: #22c55e;
+    --danger: #ef4444;
+
+    --shadow-card:
+      0 1px 2px rgba(0, 0, 0, 0.4),
+      0 6px 16px rgba(0, 0, 0, 0.3),
+      0 16px 34px rgba(0, 0, 0, 0.24);
+
+    --shadow-float:
+      0 2px 6px rgba(0, 0, 0, 0.45),
+      0 12px 28px rgba(0, 0, 0, 0.4),
+      0 28px 56px rgba(0, 0, 0, 0.3);
+
+    --shadow-sunk:
+      inset 0 2px 6px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+
+    --btn-top-light: rgba(255, 255, 255, 0.22);
+    --card-top-light: rgba(255, 255, 255, 0.06);
+  }
+}
+
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
-  margin: 0;
-  min-height: 100%;
-}
+html, body { margin: 0; min-height: 100%; }
 
 body {
   background:
-    radial-gradient(1200px 600px at 50% -10%, #16223c 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    radial-gradient(1000px 520px at 12% -8%, var(--glow-1) 0%, transparent 62%),
+    radial-gradient(760px 420px at 92% 4%, var(--glow-2) 0%, transparent 60%),
+    linear-gradient(178deg, var(--bg-a) 0%, var(--bg-b) 46%, var(--bg-b) 100%);
   background-attachment: fixed;
   color: var(--text);
   font-size: 16px;
   line-height: 1.45;
-  /* Вырез и домашний индикатор айфона */
   padding:
     env(safe-area-inset-top) env(safe-area-inset-right)
     env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-h1 { font-size: 25px; letter-spacing: -0.02em; margin: 2px 0 4px; }
-h2 { font-size: 19px; letter-spacing: -0.01em; }
-h3 { font-size: 15px; letter-spacing: -0.01em; }
+h1 { font-size: 26px; letter-spacing: -0.025em; margin: 2px 0 4px; font-weight: 750; }
+h2 { font-size: 19px; letter-spacing: -0.015em; margin: 0 0 4px; font-weight: 700; }
+h3 { font-size: 14px; letter-spacing: 0.01em; font-weight: 700; }
 
 /* ---------- Объёмные кнопки ---------- */
 
 button {
   font: inherit;
-  font-weight: 600;
+  font-weight: 650;
   font-size: 15px;
   color: #fff;
   border: none;
   border-radius: var(--r-md);
   padding: 11px 18px;
   cursor: pointer;
-  position: relative;
-  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 52%, var(--accent-lo) 100%);
+  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 54%, var(--accent-lo) 100%);
   box-shadow:
-    var(--shadow-raised),
-    0 3px 0 var(--accent-deep);
-  transition: transform 0.11s ease, box-shadow 0.11s ease, filter 0.15s ease;
-  transform: translateZ(0);
+    inset 0 1px 0 var(--btn-top-light),
+    0 3px 0 var(--accent-deep),
+    0 6px 16px var(--accent-glow);
+  transition: transform 0.11s ease, box-shadow 0.11s ease, filter 0.16s ease;
 }
 
-button:hover:not(:disabled) { filter: brightness(1.07); }
+button:hover:not(:disabled) { filter: brightness(1.06); }
 
-/* Нажатие: кнопка проваливается на высоту своей «ножки» */
+/* Нажатие: кнопка садится на свою «ножку» */
 button:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    inset 0 2px 6px rgba(0, 0, 0, 0.35),
-    0 0 0 var(--accent-deep);
+    inset 0 2px 6px rgba(0, 0, 0, 0.22),
+    0 0 0 var(--accent-deep),
+    0 1px 4px var(--accent-glow);
 }
 
-button:disabled {
-  opacity: 0.45;
-  cursor: default;
-  box-shadow: var(--shadow-raised), 0 3px 0 var(--accent-deep);
-}
+button:disabled { opacity: 0.45; cursor: default; }
 
-button:focus-visible {
-  outline: 2px solid var(--accent-hi);
-  outline-offset: 3px;
-}
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-/* Вторичная кнопка — тот же объём, нейтральный цвет */
 button.secondary {
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   color: var(--text);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 3px 0 #0d1320,
-    0 8px 18px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 var(--card-top-light),
+    0 0 0 1px var(--border),
+    0 3px 0 var(--border-hi),
+    0 6px 14px rgba(16, 26, 44, 0.09);
 }
 
 button.secondary:active:not(:disabled) {
   transform: translateY(3px);
   box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.5),
-    0 0 0 #0d1320;
+    inset 0 2px 6px rgba(16, 26, 44, 0.12),
+    0 0 0 1px var(--border),
+    0 0 0 var(--border-hi);
 }
 
-button.danger {
-  background: linear-gradient(180deg, #f87171 0%, var(--danger) 55%, #b91c1c 100%);
-  box-shadow: var(--shadow-raised), 0 3px 0 #7f1d1d;
+button.warm {
+  background: linear-gradient(180deg, var(--warm-hi) 0%, var(--warm) 55%, #e2661c 100%);
+  box-shadow:
+    inset 0 1px 0 var(--btn-top-light),
+    0 3px 0 var(--warm-deep),
+    0 6px 16px rgba(255, 138, 61, 0.32);
 }
 
-button.danger:active:not(:disabled) {
+button.warm:active:not(:disabled) {
   transform: translateY(3px);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 #7f1d1d;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2), 0 0 0 var(--warm-deep);
 }
 
-/* Маленькая плоская кнопка-крестик — объём тут был бы шумом */
+/* Крестик — плоский: объём здесь был бы шумом */
 button.icon-button {
-  background: transparent;
+  background: none;
   color: var(--faint);
   box-shadow: none;
-  padding: 6px 8px;
+  padding: 6px 9px;
   font-size: 15px;
   border-radius: var(--r-sm);
 }
 
 button.icon-button:hover:not(:disabled) {
   color: var(--danger);
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(224, 56, 74, 0.1);
   filter: none;
 }
 
-button.icon-button:active:not(:disabled) {
-  transform: scale(0.9);
-  box-shadow: none;
-}
+button.icon-button:active:not(:disabled) { transform: scale(0.88); box-shadow: none; }
 
-/* ---------- Утопленные поля ввода ---------- */
+/* ---------- Утопленные поля ---------- */
 
 input, select, textarea {
   font: inherit;
-  /* 16px обязательны: на меньшем размере Safari на айфоне зумит страницу при фокусе */
+  /* Ровно 16px: на меньшем размере Safari на айфоне зумит страницу при фокусе */
   font-size: 16px;
   color: var(--text);
-  background: linear-gradient(180deg, #0e1421 0%, #121a29 100%);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   padding: 11px 13px;
-  box-shadow: var(--shadow-inset);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-sunk);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
   min-width: 0;
   width: 100%;
 }
@@ -189,15 +248,16 @@ input::placeholder, textarea::placeholder { color: var(--faint); }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
+  background: var(--surface);
   border-color: var(--accent);
-  box-shadow: var(--shadow-inset), 0 0 0 3px rgba(59, 130, 246, 0.22);
+  box-shadow: var(--shadow-sunk), 0 0 0 3.5px var(--accent-glow);
 }
 
 textarea { resize: vertical; line-height: 1.5; }
 
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%238d99b3' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='none' stroke='%2356658a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' d='m1 2 5 5 5-5'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 13px center;
   background-size: 11px;
@@ -206,52 +266,53 @@ select {
 
 input[type='checkbox'] {
   appearance: none;
-  width: 23px;
-  height: 23px;
-  flex: 0 0 23px;
-  border-radius: 7px;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 8px;
   padding: 0;
   cursor: pointer;
+  background: var(--surface);
 }
 
 input[type='checkbox']:checked {
-  background: linear-gradient(180deg, #4ade80 0%, var(--green) 55%, var(--green-lo) 100%);
-  border-color: var(--green-lo);
+  background: linear-gradient(180deg, var(--green-hi) 0%, var(--green) 58%, #0f7a37 100%);
+  border-color: #0f7a37;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 2px 0 #14532d,
-    0 4px 10px rgba(34, 197, 94, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 0 var(--green-deep),
+    0 4px 10px rgba(22, 163, 74, 0.3);
 }
 
 input[type='checkbox']:checked::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' d='m3.5 8.5 3 3 6-6'/%3E%3C/svg%3E") center / 15px no-repeat;
+  background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='m3.5 8.5 3 3 6-6'/%3E%3C/svg%3E") center / 15px no-repeat;
 }
-
-input[type='checkbox'] { position: relative; }
 
 input[type='file'] {
   padding: 8px 12px;
   font-size: 14px;
   box-shadow: none;
-  background: transparent;
+  background: none;
   border-style: dashed;
+  border-color: var(--border-hi);
 }
 
 input[type='file']::file-selector-button {
   font: inherit;
-  font-weight: 600;
+  font-weight: 650;
   font-size: 14px;
   color: var(--text);
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
-  border: none;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
+  border: 1px solid var(--border);
   border-radius: var(--r-sm);
   padding: 7px 13px;
   margin-right: 10px;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 #0d1320;
+  box-shadow: inset 0 1px 0 var(--card-top-light), 0 2px 0 var(--border-hi);
 }
 
 label {
@@ -259,13 +320,13 @@ label {
   flex-direction: column;
   gap: 6px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--muted);
   flex: 1;
   min-width: 0;
 }
 
-a { color: var(--accent-hi); }
+a { color: var(--accent); }
 
 .muted { color: var(--muted); font-size: 13px; font-weight: 400; }
 .faint { color: var(--faint); font-size: 12px; }

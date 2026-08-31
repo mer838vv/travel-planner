@@ -1,9 +1,12 @@
+/* Оформление ссылается только на переменные из index.css — обе темы работают
+   без отдельных правил здесь. */
+
 /* ---------- Каркас ---------- */
 
 .page {
   max-width: 760px;
   margin: 0 auto;
-  padding: 20px 16px 56px;
+  padding: 22px 16px 60px;
 }
 
 .page-header {
@@ -15,86 +18,69 @@
   margin-bottom: 18px;
 }
 
-.page-header h1 {
-  background: linear-gradient(180deg, #fff 0%, #b9c6de 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.header-actions {
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-}
+.header-actions { display: flex; gap: 9px; flex-wrap: wrap; }
 
 .back-link {
   display: inline-block;
   color: var(--muted);
   text-decoration: none;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
   margin-bottom: 4px;
 }
 
-.back-link:active { color: var(--accent-hi); }
+.back-link:active { color: var(--accent); }
 
-/* Файловый input, замаскированный под объёмную кнопку */
 .button-like {
   display: inline-flex;
   align-items: center;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text);
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   border-radius: var(--r-md);
   padding: 11px 18px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    0 3px 0 #0d1320,
-    0 8px 18px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 var(--card-top-light),
+    0 0 0 1px var(--border),
+    0 3px 0 var(--border-hi),
+    0 6px 14px rgba(16, 26, 44, 0.09);
   transition: transform 0.11s ease, box-shadow 0.11s ease;
 }
 
 .button-like:active {
   transform: translateY(3px);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 #0d1320;
+  box-shadow:
+    inset 0 2px 6px rgba(16, 26, 44, 0.12),
+    0 0 0 1px var(--border),
+    0 0 0 var(--border-hi);
 }
 
 .card {
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 18px;
+  border-radius: var(--r-xl);
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 13px;
+  gap: 14px;
   margin: 16px 0;
   box-shadow: var(--shadow-card);
 }
 
-.row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
-.row > input,
-.row > select,
-.row > textarea { flex: 1 1 150px; width: auto; }
-
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.row > input, .row > select, .row > textarea { flex: 1 1 150px; width: auto; }
 .row > button, .row > .button-like { flex: 0 0 auto; }
 
 .empty {
   text-align: center;
   color: var(--faint);
   padding: 34px 18px;
-  border: 1px dashed var(--border-hi);
-  border-radius: var(--r-lg);
+  border: 1.5px dashed var(--border-hi);
+  border-radius: var(--r-xl);
   font-size: 14px;
+  line-height: 1.6;
 }
 
 /* ---------- Список поездок ---------- */
@@ -113,40 +99,51 @@
   flex-direction: column;
   gap: 3px;
   position: relative;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  overflow: hidden;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 16px 42px 16px 18px;
+  border-radius: var(--r-xl);
+  padding: 17px 44px 17px 20px;
   text-decoration: none;
   color: var(--text);
   box-shadow: var(--shadow-card);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.15s ease;
+  transition: transform 0.13s ease, box-shadow 0.13s ease, border-color 0.15s ease;
 }
 
-.trip-list a:active {
-  transform: translateY(2px) scale(0.995);
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
-  border-color: var(--accent);
+/* Цветная полоска слева — карточка перестаёт быть просто прямоугольником */
+.trip-list a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--warm) 100%);
 }
 
 .trip-list a::after {
-  content: '›';
+  content: '';
   position: absolute;
-  right: 18px;
+  right: 20px;
   top: 50%;
-  transform: translateY(-50%);
-  font-size: 26px;
-  line-height: 1;
-  color: var(--faint);
+  width: 8px;
+  height: 8px;
+  border-right: 2.2px solid var(--faint);
+  border-top: 2.2px solid var(--faint);
+  transform: translateY(-50%) rotate(45deg);
 }
 
-.trip-list strong { font-size: 17px; letter-spacing: -0.01em; }
+.trip-list a:hover { transform: translateY(-1px); box-shadow: var(--shadow-float); }
 
-.trip-dates {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--accent-hi);
+.trip-list a:active {
+  transform: translateY(1px) scale(0.995);
+  box-shadow: var(--shadow-sunk);
+  border-color: var(--accent);
 }
+
+.trip-list strong { font-size: 17px; letter-spacing: -0.015em; }
+
+.trip-dates { font-size: 13px; font-weight: 700; color: var(--accent); }
 
 /* ---------- Подсказки поиска ---------- */
 
@@ -159,40 +156,40 @@
   gap: 5px;
   max-height: 210px;
   overflow-y: auto;
-  background: rgba(7, 10, 18, 0.6);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
 }
 
 .suggestions button {
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   color: var(--text);
   text-align: left;
   width: 100%;
   font-weight: 500;
   font-size: 14px;
   padding: 10px 13px;
-  border-radius: var(--r-sm);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 0 #0d1320;
   line-height: 1.35;
+  border-radius: var(--r-sm);
+  box-shadow: 0 0 0 1px var(--border), 0 2px 0 var(--border-hi);
 }
 
 .suggestions button:active:not(:disabled) {
   transform: translateY(2px);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.45), 0 0 0 #0d1320;
+  box-shadow: 0 0 0 1px var(--border), inset 0 2px 5px rgba(16, 26, 44, 0.1);
 }
 
-/* ---------- Вкладки: сегментированный переключатель ---------- */
+/* ---------- Вкладки ---------- */
 
 .tabs {
   display: flex;
   gap: 4px;
   margin: 20px 0 18px;
   padding: 5px;
-  background: rgba(7, 10, 18, 0.7);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-inset);
+  box-shadow: var(--shadow-sunk);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -202,7 +199,7 @@
 .tabs button {
   flex: 1 1 auto;
   white-space: nowrap;
-  background: transparent;
+  background: none;
   color: var(--muted);
   box-shadow: none;
   padding: 10px 14px;
@@ -216,9 +213,9 @@
   color: #fff;
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 var(--btn-top-light),
     0 2px 0 var(--accent-deep),
-    0 5px 14px rgba(59, 130, 246, 0.3);
+    0 5px 14px var(--accent-glow);
 }
 
 /* ---------- Дни поездки ---------- */
@@ -227,7 +224,7 @@
   display: flex;
   gap: 9px;
   overflow-x: auto;
-  padding: 4px 2px 12px;
+  padding: 4px 2px 14px;
   scrollbar-width: none;
 }
 
@@ -239,44 +236,42 @@
   align-items: center;
   gap: 2px;
   white-space: nowrap;
-  padding: 10px 16px;
+  padding: 10px 17px;
   font-size: 14px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
   color: var(--text);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 3px 0 #0d1320,
-    0 6px 14px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 var(--card-top-light),
+    0 0 0 1px var(--border),
+    0 3px 0 var(--border-hi),
+    0 6px 14px rgba(16, 26, 44, 0.08);
 }
 
 .day-tabs button .muted { font-size: 11px; }
 
 .day-tabs button.active {
+  color: #fff;
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 1px 0 var(--btn-top-light),
     0 3px 0 var(--accent-deep),
-    0 7px 18px rgba(59, 130, 246, 0.32);
+    0 7px 18px var(--accent-glow);
 }
 
-.day-tabs button.active .muted { color: rgba(255, 255, 255, 0.82); }
+.day-tabs button.active .muted { color: rgba(255, 255, 255, 0.85); }
 
 /* ---------- Маршрут ---------- */
 
-.route-layout {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 18px;
-}
+.route-layout { display: flex; flex-direction: column-reverse; gap: 18px; }
 
 .map-wrap {
-  border-radius: var(--r-lg);
+  border-radius: var(--r-xl);
   overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
 }
 
-.leaflet-container { background: #0e1421; }
+.leaflet-container { background: var(--surface-2); }
 
 .map-placeholder {
   height: 210px;
@@ -285,59 +280,48 @@
   justify-content: center;
   color: var(--faint);
   font-size: 14px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface-2);
 }
 
 .poi-card {
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 15px 16px;
+  border-radius: var(--r-xl);
+  padding: 16px 18px;
   margin-bottom: 12px;
   box-shadow: var(--shadow-card);
 }
 
-.poi-header {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  flex-wrap: wrap;
-}
-
-.poi-header strong { font-size: 16px; letter-spacing: -0.01em; }
+.poi-header { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
+.poi-header strong { font-size: 16px; letter-spacing: -0.015em; }
 
 .poi-index {
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent-lo) 100%);
   color: #fff;
   border-radius: 50%;
-  width: 27px;
-  height: 27px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 750;
   flex-shrink: 0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    0 2px 6px rgba(59, 130, 246, 0.4);
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 2px 7px var(--accent-glow);
 }
 
-.poi-meta {
-  margin-left: auto;
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
-}
+.poi-meta { margin-left: auto; display: flex; gap: 7px; flex-wrap: wrap; }
 
 .poi-meta span {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--muted);
-  background: rgba(7, 10, 18, 0.55);
+  background: var(--surface-sunk);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 3px 10px;
+  padding: 3px 11px;
 }
 
 .poi-description {
@@ -345,9 +329,8 @@
   color: var(--muted);
   font-size: 14px;
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.55;
   cursor: pointer;
-  border-radius: var(--r-sm);
 }
 
 .poi-description:active { color: var(--text); }
@@ -369,19 +352,19 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 9px 12px;
+  padding: 10px 13px;
   font-size: 12px;
-  font-weight: 600;
-  min-width: 68px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 3px 10px rgba(0, 0, 0, 0.3);
+  font-weight: 650;
+  min-width: 70px;
+  box-shadow: var(--shadow-card);
 }
 
 .weather-day .date { color: var(--faint); font-size: 11px; }
-.weather-day .emoji { font-size: 21px; line-height: 1.2; }
-.weather-day .rain { color: #60a5fa; font-size: 11px; }
+.weather-day .emoji { font-size: 22px; line-height: 1.2; }
+.weather-day .rain { color: var(--accent); font-size: 11px; }
 
 /* ---------- Билеты и бюджет ---------- */
 
@@ -398,10 +381,10 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 13px 15px;
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
   flex-wrap: wrap;
   box-shadow: var(--shadow-card);
 }
@@ -409,12 +392,12 @@
 .ticket-item strong, .budget-list strong { font-size: 15px; }
 
 .ticket-category, .budget-category {
-  background: rgba(7, 10, 18, 0.6);
+  background: var(--surface-sunk);
   border: 1px solid var(--border-hi);
   border-radius: 999px;
   padding: 4px 11px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 750;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--muted);
@@ -426,15 +409,16 @@
   margin-left: auto;
 }
 
-.budget-amount { margin-left: auto; font-weight: 700; font-size: 15px; }
+.budget-amount { margin-left: auto; font-weight: 750; font-size: 15px; }
 
 /* ---------- Сборы ---------- */
 
 .progress-bar {
-  height: 9px;
+  height: 10px;
   border-radius: 999px;
-  background: rgba(7, 10, 18, 0.75);
-  box-shadow: var(--shadow-inset);
+  background: var(--surface-sunk);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sunk);
   overflow: hidden;
   margin: 6px 0 18px;
 }
@@ -442,12 +426,18 @@
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--green-lo) 0%, var(--green) 60%, #4ade80 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 12px rgba(34, 197, 94, 0.5);
-  transition: width 0.3s ease;
+  background: linear-gradient(90deg, var(--green) 0%, var(--green-hi) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: width 0.35s ease;
 }
 
-.packing-category h3 { margin: 20px 0 9px; color: var(--muted); }
+.packing-category h3 {
+  margin: 20px 0 9px;
+  color: var(--faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 12px;
+}
 
 .packing-category ul {
   list-style: none;
@@ -463,45 +453,40 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 10px 13px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.26);
+  padding: 11px 14px;
+  box-shadow: var(--shadow-card);
   transition: opacity 0.2s ease;
 }
 
-.packing-category li.packed { opacity: 0.55; }
+.packing-category li.packed { opacity: 0.5; }
 .packing-category li.packed label { text-decoration: line-through; color: var(--muted); }
 
 .packing-category label {
   flex-direction: row;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   font-size: 15px;
   font-weight: 500;
   color: var(--text);
   cursor: pointer;
 }
 
-.totals {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
+.totals { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 
 .total-badge {
   background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 55%, var(--accent-lo) 100%);
   color: #fff;
   border-radius: var(--r-md);
-  padding: 11px 18px;
-  font-weight: 700;
+  padding: 12px 19px;
+  font-weight: 750;
   font-size: 17px;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 1px 0 var(--btn-top-light),
     0 3px 0 var(--accent-deep),
-    0 8px 18px rgba(59, 130, 246, 0.28);
+    0 8px 18px var(--accent-glow);
 }
 
 /* ---------- Импорт от агента ---------- */
@@ -512,31 +497,26 @@
   min-height: 160px;
 }
 
-.agent-hint {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin: 0;
-}
+.agent-hint { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0; }
 
 .agent-status {
   border-radius: var(--r-md);
-  padding: 11px 14px;
+  padding: 12px 15px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 650;
   line-height: 1.45;
 }
 
 .agent-status.ok {
-  background: rgba(34, 197, 94, 0.13);
-  border: 1px solid rgba(34, 197, 94, 0.4);
-  color: #86efac;
+  background: rgba(22, 163, 74, 0.11);
+  border: 1px solid rgba(22, 163, 74, 0.35);
+  color: var(--green);
 }
 
 .agent-status.err {
-  background: rgba(239, 68, 68, 0.13);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
+  background: rgba(224, 56, 74, 0.1);
+  border: 1px solid rgba(224, 56, 74, 0.32);
+  color: var(--danger);
 }
 
 /* ---------- Широкий экран ---------- */
