@@ -63,11 +63,56 @@ function num(value) {
   return Number.isFinite(n) ? n : null
 }
 
+const LOCAL_TIME_RE = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/
+
+function localTime(value) {
+  return LOCAL_TIME_RE.test(String(value || '')) ? String(value) : null
+}
+
+function place(raw) {
+  if (!raw?.iata) return null
+  return {
+    iata: String(raw.iata).toUpperCase().slice(0, 4),
+    name: raw.name ? String(raw.name) : String(raw.iata),
+    terminal: raw.terminal != null && raw.terminal !== '' ? String(raw.terminal) : null,
+    address: raw.address ? String(raw.address) : null,
+    // Без пояса нельзя посчитать ни отсчёт, ни длительность перелёта —
+    // но и терять из-за этого весь рейс незачем, просто не будет отсчётов.
+    tz: raw.tz ? String(raw.tz) : null,
+    lat: num(raw.lat),
+    lon: num(raw.lon),
+  }
+}
+
+/**
+ * Блок рейса внутри билета. Необязателен: у страховки или музея его нет,
+ * и такой билет остаётся обычным билетом.
+ */
+function normalizeFlight(raw) {
+  if (!raw) return null
+  const from = place(raw.from)
+  const to = place(raw.to)
+  if (!from || !to) return null
+
+  return {
+    number: raw.number ? String(raw.number) : null,
+    pnr: raw.pnr ? String(raw.pnr) : null,
+    seats: Array.isArray(raw.seats) ? raw.seats.map(String).slice(0, 12) : [],
+    from,
+    to,
+    departLocal: localTime(raw.departLocal),
+    arriveLocal: localTime(raw.arriveLocal),
+    checkinClosesLocal: localTime(raw.checkinClosesLocal),
+    leaveAtLocal: localTime(raw.leaveAtLocal),
+    leaveNote: raw.leaveNote ? String(raw.leaveNote) : null,
+  }
+}
+
 export async function applyAgentPayload(data) {
   const { trip } = data
   const dates = dateRangeDays(trip.startDate, trip.endDate)
 
-  const summary = { title: trip.title, days: dates.length, pois: 0, tickets: 0, packing: 0, budget: 0 }
+  const summary = { title: trip.title, days: dates.length, pois: 0, tickets: 0, flights: 0, packing: 0, budget: 0 }
 
   await db.transaction(
     'rw',
@@ -121,17 +166,20 @@ export async function applyAgentPayload(data) {
 
       for (const ticket of data.tickets || []) {
         if (!ticket?.title) continue
+        const flight = normalizeFlight(ticket.flight)
         await db.tickets.add({
           tripId,
           title: String(ticket.title),
           category: TICKET_CATEGORIES.includes(ticket.category) ? ticket.category : 'Другое',
           date: DATE_RE.test(ticket.date || '') ? ticket.date : null,
           note: ticket.note ? String(ticket.note) : null,
+          flight,
           fileBlob: null,
           fileName: null,
           fileType: null,
         })
         summary.tickets++
+        if (flight) summary.flights++
       }
 
       for (const item of data.packing || []) {

@@ -7,8 +7,10 @@ import TicketsTab from '../components/TicketsTab'
 import PackingTab from '../components/PackingTab'
 import BudgetTab from '../components/BudgetTab'
 import WeatherStrip from '../components/WeatherStrip'
+import FlightCard from '../components/FlightCard'
 import { formatRange } from '../utils/formatDate'
 import { plural } from '../utils/plural'
+import { parseSegments, pickCurrentSegment, findConnections } from '../utils/flights'
 
 const TABS = [
   { key: 'route', label: 'Маршрут' },
@@ -21,7 +23,13 @@ export default function TripDetail() {
   const { id } = useParams()
   const tripId = Number(id)
   const trip = useLiveQuery(() => db.trips.get(tripId), [tripId])
+  const tickets = useLiveQuery(() => db.tickets.where('tripId').equals(tripId).toArray(), [tripId])
   const [tab, setTab] = useState('route')
+
+  const segments = parseSegments(tickets || [])
+  const current = pickCurrentSegment(segments)
+  // Показываем стыковку, которая начинается именно после текущего рейса
+  const connection = findConnections(segments).find((c) => c.from.ticketId === current?.ticketId)
 
   if (!trip) return <div className="page"><p>Загрузка…</p></div>
 
@@ -34,6 +42,8 @@ export default function TripDetail() {
           <p className="muted">{formatRange(trip.startDate, trip.endDate)}{trip.destinationName ? ` · ${trip.destinationName}` : ''}</p>
         </div>
       </div>
+
+      <FlightCard segment={current} connection={connection} />
 
       {trip.destinationLat && (
         <WeatherStrip lat={trip.destinationLat} lon={trip.destinationLon} startDate={trip.startDate} endDate={trip.endDate} />
