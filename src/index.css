@@ -407,26 +407,49 @@ input[type='checkbox']:checked::after {
   background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='m3.5 8.5 3 3 6-6'/%3E%3C/svg%3E") center / 15px no-repeat;
 }
 
+/* Файловое поле всегда прячем: браузер рисует рядом с кнопкой
+   несжимаемую подпись «Файл не выбран», которая в узкой строке
+   обрезается и выглядит мусором. Видимую часть рисуем сами. */
 input[type='file'] {
-  padding: 8px 12px;
-  font-size: 14px;
-  box-shadow: none;
-  background: none;
-  border-style: dashed;
-  border-color: var(--faint);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
-input[type='file']::file-selector-button {
-  font: inherit;
-  font-weight: 650;
+.file-picker {
+  flex: 1 1 170px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 11px 14px;
   font-size: 14px;
-  color: var(--text);
-  background: var(--glass-strong);
-  border: 1px solid var(--glass-hairline);
-  border-radius: var(--r-sm);
-  padding: 7px 13px;
-  margin-right: 10px;
+  font-weight: 650;
+  color: var(--muted);
+  background: var(--glass-sunk);
+  border: 1.5px dashed var(--faint);
+  border-radius: var(--r-md);
   cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.file-picker:hover { border-color: var(--accent); color: var(--accent); }
+.file-picker:active { transform: translateY(1px); }
+
+/* Длинное имя файла обрезаем многоточием, а не ломаем им строку */
+.file-picker span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-picker:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3.5px var(--accent-glow);
 }
 
 label {

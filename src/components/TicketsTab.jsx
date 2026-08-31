@@ -11,6 +11,9 @@ export default function TicketsTab({ tripId }) {
   const [category, setCategory] = useState(CATEGORIES[0])
   const [date, setDate] = useState('')
   const [file, setFile] = useState(null)
+  // Сброс выбранного файла: у input[type=file] значение нельзя очистить
+  // из состояния, поэтому после добавления пересоздаём сам элемент.
+  const [fileKey, setFileKey] = useState(0)
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -27,6 +30,7 @@ export default function TicketsTab({ tripId }) {
     setTitle('')
     setDate('')
     setFile(null)
+    setFileKey((k) => k + 1)
   }
 
   async function remove(id) {
@@ -47,7 +51,18 @@ export default function TicketsTab({ tripId }) {
           {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
         </select>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        <input type="file" accept="image/*,application/pdf" onChange={(e) => setFile(e.target.files[0] || null)} />
+        {/* Свой контрол вместо голого input[type=file]: браузер рисует рядом
+            с кнопкой несжимаемую подпись «Файл не выбран», которая в узкой
+            строке обрезается и выглядит мусором. */}
+        <label className="file-picker">
+          <input
+            key={fileKey}
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={(e) => setFile(e.target.files[0] || null)}
+          />
+          <span>{file ? `📎 ${file.name}` : '📎 Прикрепить скан'}</span>
+        </label>
         <button type="submit">Добавить</button>
       </form>
 
