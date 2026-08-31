@@ -39,7 +39,7 @@ export default function RouteTab({ trip }) {
 
       <div className="route-layout">
         <div className="poi-list">
-          {pois?.length === 0 && <p className="muted">На этот день ещё нет точек.</p>}
+          {pois?.length === 0 && <div className="empty">На этот день ещё нет точек.</div>}
           {pois?.map((poi, i) => (
             <PoiCard key={poi.id} poi={poi} index={i} />
           ))}
@@ -151,7 +151,7 @@ function AddPoiForm({ dayId, tripId, nextOrder }) {
           placeholder="Название места или адрес"
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />
-        <button type="button" onClick={handleSearch}>Найти</button>
+        <button type="button" className="secondary" onClick={handleSearch}>Найти</button>
       </div>
       <div className="row">
         <input placeholder="Время (10:00)" value={visitTime} onChange={(e) => setVisitTime(e.target.value)} />

@@ -49,7 +49,7 @@ export default function BudgetTab({ tripId }) {
           <li key={e.id}>
             <span className="budget-category">{e.category}</span>
             <strong>{e.title}</strong>
-            <span>{e.amount.toFixed(2)} {e.currency}</span>
+            <span className="budget-amount">{e.amount.toFixed(2)} {e.currency}</span>
             <button className="icon-button" onClick={() => remove(e.id)}>✕</button>
           </li>
         ))}

@@ -31,10 +31,14 @@ export default function PackingTab({ tripId }) {
   }
 
   const packedCount = items.filter((i) => i.packed).length
+  const percent = items.length ? Math.round((packedCount / items.length) * 100) : 0
 
   return (
     <div className="packing-tab">
-      <p className="muted">Собрано: {packedCount} / {items.length}</p>
+      <p className="muted">Собрано: {packedCount} из {items.length}</p>
+      <div className="progress-bar">
+        <div className="progress-fill" style={{ width: `${percent}%` }} />
+      </div>
 
       {Object.entries(byCategory).map(([cat, catItems]) => (
         <div key={cat} className="packing-category">

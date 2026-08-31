@@ -56,11 +56,12 @@ export default function TicketsTab({ tripId }) {
             <span className="ticket-category">{t.category}</span>
             <strong>{t.title}</strong>
             {t.date && <span className="muted">{t.date}</span>}
-            {t.fileBlob && <button onClick={() => openFile(t)}>Открыть файл</button>}
+            {t.note && <span className="muted">{t.note}</span>}
+            {t.fileBlob && <button className="secondary" onClick={() => openFile(t)}>Открыть файл</button>}
             <button className="icon-button" onClick={() => remove(t.id)}>✕</button>
           </li>
         ))}
-        {tickets?.length === 0 && <p className="muted">Билетов и документов пока нет.</p>}
+        {tickets?.length === 0 && <div className="empty">Билетов и документов пока нет.</div>}
       </ul>
     </div>
   )

@@ -1,51 +1,271 @@
 :root {
-  color-scheme: light dark;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --accent: #2563eb;
-  --bg: #0b0e14;
-  --surface: #151a24;
-  --text: #e7ebf3;
-  --muted: #8b93a7;
-  --border: #262d3d;
+  color-scheme: dark;
+
+  /* Палитра */
+  --bg-deep: #070a12;
+  --bg: #0c111c;
+  --surface: #141b2a;
+  --surface-hi: #1b2436;
+  --border: #253044;
+  --border-hi: #33415c;
+
+  --text: #eaeff8;
+  --muted: #8d99b3;
+  --faint: #5d6883;
+
+  --accent: #3b82f6;
+  --accent-hi: #60a5fa;
+  --accent-lo: #1d4ed8;
+  --accent-deep: #14329c;
+
+  --green: #22c55e;
+  --green-lo: #15803d;
+  --amber: #f59e0b;
+  --danger: #ef4444;
+
+  /* Скругления и тени */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+
+  --shadow-raised:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 6px 16px rgba(0, 0, 0, 0.34);
+
+  --shadow-card:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.32),
+    0 12px 28px rgba(0, 0, 0, 0.26);
+
+  /* Утопленные поля: свет сверху падает внутрь — противоположность выпуклой кнопке */
+  --shadow-inset:
+    inset 0 2px 5px rgba(0, 0, 0, 0.5),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
 
 body {
-  margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #16223c 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+  background-attachment: fixed;
   color: var(--text);
+  font-size: 16px;
+  line-height: 1.45;
+  /* Вырез и домашний индикатор айфона */
+  padding:
+    env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-button, input, select, textarea {
-  font: inherit;
-  color: inherit;
-}
+h1 { font-size: 25px; letter-spacing: -0.02em; margin: 2px 0 4px; }
+h2 { font-size: 19px; letter-spacing: -0.01em; }
+h3 { font-size: 15px; letter-spacing: -0.01em; }
+
+/* ---------- Объёмные кнопки ---------- */
 
 button {
-  background: var(--accent);
-  color: white;
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: var(--r-md);
+  padding: 11px 18px;
+  cursor: pointer;
+  position: relative;
+  background: linear-gradient(180deg, var(--accent-hi) 0%, var(--accent) 52%, var(--accent-lo) 100%);
+  box-shadow:
+    var(--shadow-raised),
+    0 3px 0 var(--accent-deep);
+  transition: transform 0.11s ease, box-shadow 0.11s ease, filter 0.15s ease;
+  transform: translateZ(0);
+}
+
+button:hover:not(:disabled) { filter: brightness(1.07); }
+
+/* Нажатие: кнопка проваливается на высоту своей «ножки» */
+button:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 2px 6px rgba(0, 0, 0, 0.35),
+    0 0 0 var(--accent-deep);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: var(--shadow-raised), 0 3px 0 var(--accent-deep);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent-hi);
+  outline-offset: 3px;
+}
+
+/* Вторичная кнопка — тот же объём, нейтральный цвет */
+button.secondary {
+  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  color: var(--text);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 3px 0 #0d1320,
+    0 8px 18px rgba(0, 0, 0, 0.3);
+}
+
+button.secondary:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.5),
+    0 0 0 #0d1320;
+}
+
+button.danger {
+  background: linear-gradient(180deg, #f87171 0%, var(--danger) 55%, #b91c1c 100%);
+  box-shadow: var(--shadow-raised), 0 3px 0 #7f1d1d;
+}
+
+button.danger:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 #7f1d1d;
+}
+
+/* Маленькая плоская кнопка-крестик — объём тут был бы шумом */
+button.icon-button {
+  background: transparent;
+  color: var(--faint);
+  box-shadow: none;
+  padding: 6px 8px;
+  font-size: 15px;
+  border-radius: var(--r-sm);
+}
+
+button.icon-button:hover:not(:disabled) {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.12);
+  filter: none;
+}
+
+button.icon-button:active:not(:disabled) {
+  transform: scale(0.9);
+  box-shadow: none;
+}
+
+/* ---------- Утопленные поля ввода ---------- */
+
+input, select, textarea {
+  font: inherit;
+  /* 16px обязательны: на меньшем размере Safari на айфоне зумит страницу при фокусе */
+  font-size: 16px;
+  color: var(--text);
+  background: linear-gradient(180deg, #0e1421 0%, #121a29 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 11px 13px;
+  box-shadow: var(--shadow-inset);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
+  width: 100%;
+}
+
+input::placeholder, textarea::placeholder { color: var(--faint); }
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-inset), 0 0 0 3px rgba(59, 130, 246, 0.22);
+}
+
+textarea { resize: vertical; line-height: 1.5; }
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%238d99b3' d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 11px;
+  padding-right: 34px;
+}
+
+input[type='checkbox'] {
+  appearance: none;
+  width: 23px;
+  height: 23px;
+  flex: 0 0 23px;
+  border-radius: 7px;
+  padding: 0;
   cursor: pointer;
 }
 
-button:disabled { opacity: 0.6; cursor: default; }
+input[type='checkbox']:checked {
+  background: linear-gradient(180deg, #4ade80 0%, var(--green) 55%, var(--green-lo) 100%);
+  border-color: var(--green-lo);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 0 #14532d,
+    0 4px 10px rgba(34, 197, 94, 0.28);
+}
 
-input, select, textarea {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
+input[type='checkbox']:checked::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' d='m3.5 8.5 3 3 6-6'/%3E%3C/svg%3E") center / 15px no-repeat;
+}
+
+input[type='checkbox'] { position: relative; }
+
+input[type='file'] {
+  padding: 8px 12px;
+  font-size: 14px;
+  box-shadow: none;
+  background: transparent;
+  border-style: dashed;
+}
+
+input[type='file']::file-selector-button {
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--surface-hi) 0%, var(--surface) 100%);
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 7px 13px;
+  margin-right: 10px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 0 #0d1320;
 }
 
 label {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
   flex: 1;
+  min-width: 0;
 }
 
-.muted { color: var(--muted); font-size: 13px; }
+a { color: var(--accent-hi); }
+
+.muted { color: var(--muted); font-size: 13px; font-weight: 400; }
+.faint { color: var(--faint); font-size: 12px; }

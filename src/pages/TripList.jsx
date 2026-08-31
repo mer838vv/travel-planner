@@ -4,10 +4,12 @@ import { Link, useNavigate } from 'react-router-dom'
 import { db, dateRangeDays, DEFAULT_PACKING_TEMPLATE } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { exportAllData, importAllData } from '../utils/backup'
+import AgentImport from '../components/AgentImport'
 
 export default function TripList() {
   const trips = useLiveQuery(() => db.trips.orderBy('startDate').toArray(), [])
   const [showForm, setShowForm] = useState(false)
+  const [showAgent, setShowAgent] = useState(false)
   const navigate = useNavigate()
 
   return (
@@ -15,9 +17,9 @@ export default function TripList() {
       <div className="page-header">
         <h1>Мои поездки</h1>
         <div className="header-actions">
-          <button onClick={() => exportAllData()}>Экспорт бэкапа</button>
+          <button className="secondary" onClick={() => exportAllData()}>Экспорт</button>
           <label className="button-like">
-            Импорт бэкапа
+            Импорт
             <input
               type="file"
               accept="application/json"
@@ -33,22 +35,31 @@ export default function TripList() {
         </div>
       </div>
 
-      {!trips && <p>Загрузка…</p>}
-      {trips && trips.length === 0 && !showForm && <p>Пока нет ни одной поездки.</p>}
+      {!trips && <p className="muted">Загрузка…</p>}
+      {trips && trips.length === 0 && !showForm && !showAgent && (
+        <div className="empty">Пока нет ни одной поездки.<br />Создай вручную или вставь план от агента.</div>
+      )}
 
       <ul className="trip-list">
         {trips?.map((trip) => (
           <li key={trip.id}>
             <Link to={`/trip/${trip.id}`}>
               <strong>{trip.title}</strong>
-              <span>{trip.startDate} → {trip.endDate}</span>
+              <span className="trip-dates">{trip.startDate} → {trip.endDate}</span>
               {trip.destinationName && <span className="muted">{trip.destinationName}</span>}
             </Link>
           </li>
         ))}
       </ul>
 
-      {!showForm && <button onClick={() => setShowForm(true)}>+ Новая поездка</button>}
+      {!showForm && !showAgent && (
+        <div className="row">
+          <button onClick={() => setShowForm(true)}>+ Новая поездка</button>
+          <button className="secondary" onClick={() => setShowAgent(true)}>Вставить план от агента</button>
+        </div>
+      )}
+
+      {showAgent && <AgentImport onClose={() => setShowAgent(false)} />}
 
       {showForm && (
         <NewTripForm
@@ -129,7 +140,7 @@ function NewTripForm({ onCancel, onCreated }) {
             onChange={(e) => setDestQuery(e.target.value)}
             placeholder="Город или место"
           />
-          <button type="button" onClick={handleSearch}>Найти</button>
+          <button type="button" className="secondary" onClick={handleSearch}>Найти</button>
         </div>
       </label>
       {destOptions.length > 0 && (
@@ -145,7 +156,7 @@ function NewTripForm({ onCancel, onCreated }) {
       )}
       <div className="row">
         <button type="submit" disabled={saving}>{saving ? 'Создаю…' : 'Создать поездку'}</button>
-        <button type="button" onClick={onCancel}>Отмена</button>
+        <button type="button" className="secondary" onClick={onCancel}>Отмена</button>
       </div>
     </form>
   )
