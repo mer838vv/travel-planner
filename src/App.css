@@ -73,6 +73,30 @@
 .row > input, .row > select, .row > textarea { flex: 1 1 150px; width: auto; }
 .row > button, .row > .button-like { flex: 0 0 auto; }
 
+/* Главные действия — в столбик и во всю ширину: на телефоне это первое,
+   что нужно найти, а не искать среди мелких кнопок. */
+.main-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 18px 0 8px;
+}
+
+button.big {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 16px;
+  border-radius: var(--r-lg);
+}
+
+.build-stamp {
+  margin: 30px 0 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+}
+
 .empty {
   text-align: center;
   color: var(--faint);

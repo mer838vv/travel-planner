@@ -53,9 +53,13 @@ export default function TripList() {
       </ul>
 
       {!showForm && !showAgent && (
-        <div className="row">
-          <button onClick={() => setShowForm(true)}>+ Новая поездка</button>
-          <button className="secondary" onClick={() => setShowAgent(true)}>Вставить план от агента</button>
+        <div className="main-actions">
+          <button className="warm big" onClick={() => setShowAgent(true)}>
+            📋 Вставить план от агента
+          </button>
+          <button className="secondary big" onClick={() => setShowForm(true)}>
+            + Создать поездку вручную
+          </button>
         </div>
       )}
 
@@ -67,6 +71,8 @@ export default function TripList() {
           onCreated={(id) => navigate(`/trip/${id}`)}
         />
       )}
+
+      <p className="build-stamp">версия {__BUILD_STAMP__} UTC</p>
     </div>
   )
 }

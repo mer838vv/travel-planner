@@ -7,13 +7,25 @@ import { VitePWA } from 'vite-plugin-pwa'
 // Локально (npm run dev) остаётся '/'.
 const base = process.env.BASE_PATH || '/'
 
+// Метка сборки: показывается в приложении, чтобы одним взглядом понять,
+// свежая версия открыта или из кеша. Без неё «обновилось или нет» —
+// гадание, что уже один раз стоило потерянного вечера.
+const buildStamp = new Date().toISOString().slice(0, 16).replace('T', ' ')
+
 // https://vite.dev/config/
 export default defineConfig({
   base,
+  define: {
+    __BUILD_STAMP__: JSON.stringify(buildStamp),
+  },
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // Регистрируем service worker сами (src/pwa.js): штатный скрипт умеет
+      // только поставить новую версию, но не перезагрузить открытую
+      // страницу — на айфоне из-за этого намертво висела первая версия.
+      registerType: 'prompt',
+      injectRegister: null,
       includeAssets: ['icon.svg'],
       manifest: {
         name: 'Travel Planner',
@@ -29,6 +41,14 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Новая версия обязана активироваться немедленно, не дожидаясь, пока
+        // закроются все вкладки. Без этого устройство, на котором уже стоит
+        // старый service worker, ждало бы обновления бесконечно: старая
+        // страница не умеет дать команду новой версии активироваться.
+        skipWaiting: true,
+        clientsClaim: true,
+        // Старые кеши предыдущих сборок не должны копиться на устройстве.
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         navigateFallback: `${base}index.html`.replace('//', '/'),
         runtimeCaching: [
