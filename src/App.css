@@ -942,3 +942,31 @@ button.big {
   .poi-list { flex: 1 1 340px; min-width: 0; }
   .map-wrap { flex: 1 1 340px; position: sticky; top: 16px; }
 }
+
+/* ---------- Подтверждение удаления ---------- */
+
+.delete-confirm {
+  display: inline-flex;
+  gap: 6px;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+button.tiny {
+  font-size: 12.5px;
+  padding: 7px 11px;
+  border-radius: var(--r-sm);
+  box-shadow: none;
+}
+
+button.tiny:active:not(:disabled) { transform: scale(0.95); box-shadow: none; }
+
+button.danger.tiny {
+  background: var(--danger);
+  box-shadow: none;
+}
+
+/* Корзина вместо крестика: крестик читается как «закрыть», и им снесли
+   день поездки, приняв удаление за сворачивание карточки. */
+button.icon-button { font-size: 16px; opacity: 0.55; }
+button.icon-button:hover:not(:disabled) { opacity: 1; background: rgba(224, 56, 74, 0.12); }

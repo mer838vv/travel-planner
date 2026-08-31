@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
+import DeleteButton from './DeleteButton'
 
 export default function PackingTab({ tripId }) {
   const items = useLiveQuery(() => db.packingItems.where('tripId').equals(tripId).toArray(), [tripId])
@@ -50,7 +51,7 @@ export default function PackingTab({ tripId }) {
                   <input type="checkbox" checked={item.packed} onChange={() => toggle(item)} />
                   {item.name}
                 </label>
-                <button className="icon-button" onClick={() => remove(item.id)}>✕</button>
+                <DeleteButton onDelete={() => remove(item.id)} label={`Убрать «${item.name}»`} confirm={false} />
               </li>
             ))}
           </ul>

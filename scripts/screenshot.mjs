@@ -141,6 +141,28 @@ for (const scheme of ['light', 'dark']) {
     await poiList.screenshot({ path: `${outDir}${scheme}-3a-точки-дня.png` })
   }
 
+  // Проверяем поведение, а не только вид: раскрытие по нажатию на заголовок
+  // и то, что удаление спрашивает подтверждение, а не стирает с одного тапа.
+  const collapsed = page.locator('.poi-card:not(.open)').first()
+  if (await collapsed.count()) {
+    const before = await page.locator('.poi-description').count()
+    await collapsed.locator('.poi-toggle').click()
+    await page.waitForTimeout(300)
+    const after = await page.locator('.poi-description').count()
+    console.log(`   раскрытие по нажатию: описаний ${before} → ${after}${after > before ? ' ✓' : ' ✗ НЕ РАБОТАЕТ'}`)
+  }
+
+  const poiCount = await page.locator('.poi-card').count()
+  await page.locator('.poi-card .icon-button').first().click()
+  await page.waitForTimeout(250)
+  const stillThere = await page.locator('.poi-card').count()
+  const asks = await page.locator('.delete-confirm').count()
+  console.log(`   удаление спрашивает: ${asks > 0 && stillThere === poiCount ? 'да ✓' : 'НЕТ ✗ точка стёрлась сразу'}`)
+  await page.locator('.poi-list').scrollIntoViewIfNeeded()
+  await page.waitForTimeout(200)
+  await page.locator('.poi-list').screenshot({ path: `${outDir}${scheme}-3c-удаление.png` })
+  await page.getByRole('button', { name: 'Отмена' }).first().click()
+
   // Блок трансфера длиннее экрана — снимаем его целиком отдельно
   const transfer = page.locator('.transfer-card')
   if (await transfer.count()) {

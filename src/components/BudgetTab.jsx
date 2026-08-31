@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
 import { formatMoney } from '../utils/formatMoney'
+import DeleteButton from './DeleteButton'
 
 export default function BudgetTab({ tripId }) {
   const entries = useLiveQuery(() => db.budgetEntries.where('tripId').equals(tripId).sortBy('date'), [tripId])
@@ -51,7 +52,7 @@ export default function BudgetTab({ tripId }) {
             <span className="budget-category">{e.category}</span>
             <strong>{e.title}</strong>
             <span className="budget-amount">{formatMoney(e.amount, e.currency)}</span>
-            <button className="icon-button" onClick={() => remove(e.id)}>✕</button>
+            <DeleteButton onDelete={() => remove(e.id)} label={`Удалить трату «${e.title}»`} />
           </li>
         ))}
       </ul>

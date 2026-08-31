@@ -5,6 +5,7 @@ import { db } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { formatShort } from '../utils/formatDate'
 import { resolveKind, kindMeta, isLogistics } from '../utils/poiKind'
+import DeleteButton from './DeleteButton'
 
 export default function RouteTab({ trip }) {
   const days = useLiveQuery(() => db.days.where('tripId').equals(trip.id).sortBy('order'), [trip.id])
@@ -111,7 +112,7 @@ function PoiCard({ poi }) {
           <span className="poi-chevron" aria-hidden="true" />
         </button>
 
-        <button className="icon-button" onClick={remove} aria-label="Удалить точку">✕</button>
+        <DeleteButton onDelete={remove} label={`Удалить точку «${poi.name}»`} />
       </div>
 
       {/* Время и стоимость видны всегда: по ним день и просматривают */}
