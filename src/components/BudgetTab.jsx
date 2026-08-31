@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../db'
+import { formatMoney } from '../utils/formatMoney'
 
 export default function BudgetTab({ tripId }) {
   const entries = useLiveQuery(() => db.budgetEntries.where('tripId').equals(tripId).sortBy('date'), [tripId])
@@ -39,7 +40,7 @@ export default function BudgetTab({ tripId }) {
     <div className="budget-tab">
       <div className="totals">
         {Object.entries(totalsByCurrency).map(([cur, total]) => (
-          <span key={cur} className="total-badge">{total.toFixed(2)} {cur}</span>
+          <span key={cur} className="total-badge">{formatMoney(total, cur)}</span>
         ))}
         {entries.length === 0 && <span className="muted">Расходов пока нет</span>}
       </div>
@@ -49,7 +50,7 @@ export default function BudgetTab({ tripId }) {
           <li key={e.id}>
             <span className="budget-category">{e.category}</span>
             <strong>{e.title}</strong>
-            <span className="budget-amount">{e.amount.toFixed(2)} {e.currency}</span>
+            <span className="budget-amount">{formatMoney(e.amount, e.currency)}</span>
             <button className="icon-button" onClick={() => remove(e.id)}>✕</button>
           </li>
         ))}

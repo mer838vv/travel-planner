@@ -73,6 +73,15 @@ for (const scheme of ['light', 'dark']) {
     await page.screenshot({ path: `${outDir}${scheme}-${file}.png` })
   }
 
+  // Подтверждение удаления: снимаем экран, но саму поездку не удаляем —
+  // иначе следующий прогон стартовал бы с другого состояния.
+  const deleteButton = page.getByRole('button', { name: 'Удалить поездку' })
+  await deleteButton.scrollIntoViewIfNeeded()
+  await deleteButton.click()
+  await page.locator('.danger-card').scrollIntoViewIfNeeded()
+  await page.waitForTimeout(400)
+  await page.screenshot({ path: `${outDir}${scheme}-7-удаление.png` })
+
   console.log(`${scheme}: снято, ошибок в консоли — ${errors.length}`)
   for (const e of errors.slice(0, 5)) console.log(`   ! ${e}`)
 
