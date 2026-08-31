@@ -353,8 +353,41 @@ button.big {
   margin-bottom: 12px;
 }
 
-.poi-header { display: flex; align-items: center; gap: 11px; flex-wrap: wrap; }
-.poi-header strong { font-size: 16px; letter-spacing: -0.015em; }
+.poi-header { display: flex; align-items: center; gap: 11px; }
+.poi-header strong { font-size: 16px; letter-spacing: -0.015em; line-height: 1.3; }
+
+/* Заголовок — кнопка раскрытия во всю ширину: попасть по ней легко даже
+   на ходу, а мелкая стрелка сбоку была бы промахом на телефоне. */
+.poi-toggle {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: none;
+  box-shadow: none;
+  border-radius: var(--r-sm);
+  padding: 4px 0;
+  color: var(--text);
+  text-align: left;
+  font-weight: inherit;
+}
+
+.poi-toggle:hover:not(:disabled) { filter: none; }
+.poi-toggle:active:not(:disabled) { transform: none; box-shadow: none; opacity: 0.6; }
+
+.poi-chevron {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-right: 2.2px solid var(--faint);
+  border-bottom: 2.2px solid var(--faint);
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 0.2s ease;
+}
+
+.poi-card.open .poi-chevron { transform: rotate(-135deg) translate(-2px, -2px); }
 
 /* ---------- Типы точек маршрута ----------
    Перелёт, заселение и прогулка — события разной природы, и глаз должен
@@ -421,7 +454,10 @@ button.big {
   flex-shrink: 0;
 }
 
-.poi-meta { margin-left: auto; display: flex; gap: 7px; flex-wrap: wrap; }
+/* Время и цена остаются на виду и в свёрнутом состоянии — по ним
+   просматривают день, не открывая каждую точку. */
+.poi-meta { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 9px; padding-left: 39px; }
+.poi-meta:empty { display: none; }
 
 .poi-meta span {
   font-size: 12px;
@@ -434,7 +470,8 @@ button.big {
 }
 
 .poi-description {
-  margin: 11px 0 0;
+  margin: 12px 0 0;
+  padding-left: 39px;
   /* Не --muted: описание на цветной карточке должно оставаться читаемым */
   color: var(--text);
   opacity: 0.78;

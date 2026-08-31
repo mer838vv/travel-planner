@@ -87,30 +87,51 @@ function PoiCard({ poi }) {
 
   const kind = resolveKind(poi)
   const meta = kindMeta(kind)
+  const logistics = isLogistics(kind)
+
+  // День из шести развёрнутых карточек читается как простыня. Свёрнутый вид
+  // даёт обзор дня целиком, а подробности открываются по нажатию. Логистика
+  // раскрыта сразу: её читают в спешке, и лишний тап там лишний.
+  const [open, setOpen] = useState(logistics)
 
   return (
-    <div className={`poi-card kind-${kind}${isLogistics(kind) ? ' logistics' : ''}`}>
+    <div className={`poi-card kind-${kind}${logistics ? ' logistics' : ''}${open ? ' open' : ''}`}>
       <div className="poi-header">
         {/* Иконка вместо порядкового номера: тип события должен читаться
             раньше текста, а порядок и так задан положением в списке. */}
         <span className="poi-index" title={meta.label}>{meta.icon}</span>
-        <strong>{poi.name}</strong>
-        <div className="poi-meta">
-          {poi.visitTime && <span>🕒 {poi.visitTime}</span>}
-          {poi.durationMin && <span>⏱ {poi.durationMin} мин</span>}
-          {poi.cost != null && poi.cost !== '' && <span>💶 {poi.cost}</span>}
-        </div>
-        <button className="icon-button" onClick={remove}>✕</button>
+
+        <button
+          type="button"
+          className="poi-toggle"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+        >
+          <strong>{poi.name}</strong>
+          <span className="poi-chevron" aria-hidden="true" />
+        </button>
+
+        <button className="icon-button" onClick={remove} aria-label="Удалить точку">✕</button>
       </div>
-      {editing ? (
-        <div className="row">
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
-          <button onClick={saveDescription}>Сохранить</button>
-        </div>
-      ) : (
-        <p className="poi-description" onClick={() => setEditing(true)}>
-          {poi.description || <span className="muted">Добавить описание…</span>}
-        </p>
+
+      {/* Время и стоимость видны всегда: по ним день и просматривают */}
+      <div className="poi-meta">
+        {poi.visitTime && <span>🕒 {poi.visitTime}</span>}
+        {poi.durationMin && <span>⏱ {poi.durationMin} мин</span>}
+        {poi.cost != null && poi.cost !== '' && <span>💶 {poi.cost}</span>}
+      </div>
+
+      {open && (
+        editing ? (
+          <div className="row">
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
+            <button onClick={saveDescription}>Сохранить</button>
+          </div>
+        ) : (
+          <p className="poi-description" onClick={() => setEditing(true)}>
+            {poi.description || <span className="muted">Добавить описание…</span>}
+          </p>
+        )
       )}
     </div>
   )
