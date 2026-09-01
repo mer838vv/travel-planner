@@ -21,6 +21,50 @@ import { registerSW } from 'virtual:pwa-register'
 
 const CHECK_INTERVAL_MS = 60_000
 
+/** Сколько подтверждение обязано побыть на экране до перезагрузки. */
+const MIN_TOAST_MS = 700
+
+/**
+ * Аварийный сброс: снять service worker, стереть все кеши и перезагрузиться
+ * начисто.
+ *
+ * Нужен потому, что автообновление выше чинит нормальный случай, но не
+ * спасает, когда в кеше уже лежит испорченное — так было при включённом
+ * VPN. До этой кнопки единственным выходом было снести иконку с домашнего
+ * экрана и поставить приложение заново.
+ *
+ * Данные поездок это не трогает: они в IndexedDB, а не в Cache Storage.
+ *
+ * Про `location.reload(true)`: аргумент из старых руководств современные
+ * браузеры игнорируют — принудительной перезагрузки он не даёт. Поэтому
+ * index.html сначала перезапрашивается с `cache: 'reload'`, что обновляет
+ * и HTTP-кеш (на GitHub Pages страница отдаётся с max-age=600, то есть без
+ * этого до десяти минут могла бы вернуться прежняя копия и кнопка
+ * выглядела бы сломанной), и только потом идёт обычный reload.
+ */
+export async function resetAppCache() {
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.all(registrations.map((r) => r.unregister()))
+  }
+
+  if ('caches' in window) {
+    const keys = await caches.keys()
+    await Promise.all(keys.map((k) => caches.delete(k)))
+  }
+
+  // Офлайн этот запрос не удастся — тогда просто перезагружаемся тем, что
+  // есть, а не застреваем на кнопке.
+  await fetch(window.location.pathname, { cache: 'reload' }).catch(() => {})
+
+  // На быстрой сети всё выше укладывается в десяток миллисекунд, и надпись
+  // «Кеш очищен, перезагружаю…» не успевала отрисоваться: экран просто
+  // моргал, и было непонятно, нажалась кнопка или нет.
+  await new Promise((resolve) => setTimeout(resolve, MIN_TOAST_MS))
+
+  window.location.reload()
+}
+
 if ('serviceWorker' in navigator) {
   // Если контроллера ещё нет, это первая установка: перехват управления
   // произойдёт штатно и перезагружать нечего.

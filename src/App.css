@@ -133,10 +133,43 @@ button.big {
 /* Лежит прямо на небе, а не на карточке */
 .build-stamp {
   margin: 32px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
   text-align: center;
   color: var(--on-sky-muted);
   font-size: 12px;
   letter-spacing: 0.04em;
+}
+
+button.link-reset {
+  background: none;
+  box-shadow: none;
+  color: var(--on-sky-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button.link-reset:hover:not(:disabled) {
+  color: var(--on-sky);
+  background: rgba(255, 255, 255, 0.14);
+  filter: none;
+}
+
+button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
+
+/* Подтверждение занимает всю ширину полосы, чтобы не прыгала метка версии */
+.reset-toast {
+  flex-basis: 100%;
+  color: var(--on-sky);
+  font-weight: 600;
 }
 
 .empty {

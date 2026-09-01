@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { db, dateRangeDays, DEFAULT_PACKING_TEMPLATE } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { exportAllData, importAllData } from '../utils/backup'
+import { resetAppCache } from '../pwa'
 import AgentImport from '../components/AgentImport'
 import { formatRange } from '../utils/formatDate'
 
@@ -73,7 +74,33 @@ export default function TripList() {
         />
       )}
 
-      <p className="build-stamp">версия {__BUILD_STAMP__} UTC</p>
+      <BuildStamp />
+    </div>
+  )
+}
+
+/**
+ * Метка версии и аварийная кнопка рядом с ней.
+ *
+ * Кнопка стоит именно здесь: когда возникает вопрос «а свежая ли это
+ * версия», взгляд уже на метке — и починка должна быть под рукой, а не в
+ * настройках телефона.
+ */
+function BuildStamp() {
+  const [resetting, setResetting] = useState(false)
+
+  async function reset() {
+    setResetting(true)
+    await resetAppCache()
+  }
+
+  return (
+    <div className="build-stamp">
+      <span>версия {__BUILD_STAMP__} UTC</span>
+      <button type="button" className="link-reset" onClick={reset} disabled={resetting}>
+        Обновить приложение
+      </button>
+      {resetting && <span className="reset-toast">Кеш очищен, перезагружаю…</span>}
     </div>
   )
 }

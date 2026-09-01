@@ -28,16 +28,30 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ['icon.svg'],
       manifest: {
+        // id фиксирует тождество приложения: без него браузер опознаёт PWA
+        // по start_url, и смена адреса выглядела бы как новое приложение.
+        id: base,
+        lang: 'ru',
         name: 'Travel Planner',
         short_name: 'Travel',
         description: 'Личный планировщик поездок: маршруты, билеты, сборы, бюджет',
         theme_color: '#2f6bff',
         background_color: '#eaf0fb',
         display: 'standalone',
+        orientation: 'portrait',
         start_url: base,
         scope: base,
+        // PNG обязательны: часть браузеров не считает приложение
+        // устанавливаемым, пока нет растровых 192 и 512.
+        //
+        // maskable вынесен отдельной записью и нарисован с полями. Раньше
+        // на одной иконке стояло purpose 'any maskable' — Android режет
+        // такую под форму своей темы и срезал булавку по краям.
         icons: [
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
         ],
       },
       workbox: {
@@ -57,7 +71,11 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: {
               cacheName: 'osm-tiles',
-              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              // Неделя, не месяц: тайл, испорченный при записи (например,
+              // VPN подсунул заглушку вместо картинки), из CacheFirst сам
+              // не уйдёт — он лежит до истечения срока. Чем короче срок,
+              // тем быстрее карта чинится сама.
+              expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 7 },
             },
           },
           {
@@ -67,6 +85,12 @@ export default defineConfig({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'travel-api',
+              // Без таймаута NetworkFirst ждёт сеть сколько угодно. VPN
+              // часто не обрывает соединение, а молча его держит — запрос
+              // висел вечно, и до кеша дело не доходило: погода не
+              // появлялась вовсе, поиск места замирал без объяснений.
+              // Пять секунд — и отдаём последний известный ответ.
+              networkTimeoutSeconds: 5,
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 },
             },
           },
