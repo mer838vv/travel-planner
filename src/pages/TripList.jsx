@@ -3,16 +3,39 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { Link, useNavigate } from 'react-router-dom'
 import { db, dateRangeDays, DEFAULT_PACKING_TEMPLATE } from '../db'
 import { searchPlace } from '../utils/geocode'
-import { exportAllData, importAllData } from '../utils/backup'
+import { exportAllData, importAllData, readBackup, analyzeBackup } from '../utils/backup'
 import { resetAppCache } from '../pwa'
 import AgentImport from '../components/AgentImport'
-import { formatRange } from '../utils/formatDate'
+import { formatDay, formatRange } from '../utils/formatDate'
+import { plural } from '../utils/plural'
 
 export default function TripList() {
   const trips = useLiveQuery(() => db.trips.orderBy('startDate').toArray(), [])
   const [showForm, setShowForm] = useState(false)
   const [showAgent, setShowAgent] = useState(false)
+  // Разобранный бэкап, ожидающий подтверждения: {payload, summary}
+  const [pendingImport, setPendingImport] = useState(null)
+  const [importStatus, setImportStatus] = useState(null)
   const navigate = useNavigate()
+
+  async function pickBackup(e) {
+    const file = e.target.files[0]
+    // Сброс сразу: иначе повторный выбор того же файла не даст change.
+    e.target.value = ''
+    if (!file) return
+
+    setImportStatus(null)
+    try {
+      const payload = await readBackup(file)
+      setPendingImport({ payload, summary: await analyzeBackup(payload) })
+    } catch (err) {
+      setPendingImport(null)
+      setImportStatus({
+        ok: false,
+        text: err?.userFacing ? err.message : 'Не удалось прочитать файл бэкапа.',
+      })
+    }
+  }
 
   return (
     <div className="page">
@@ -26,16 +49,39 @@ export default function TripList() {
               type="file"
               accept="application/json"
               style={{ display: 'none' }}
-              onChange={async (e) => {
-                if (e.target.files[0]) {
-                  await importAllData(e.target.files[0])
-                  e.target.value = ''
-                }
-              }}
+              onChange={pickBackup}
             />
           </label>
         </div>
       </div>
+
+      {importStatus && (
+        <div className={`agent-status ${importStatus.ok ? 'ok' : 'err'}`}>{importStatus.text}</div>
+      )}
+
+      {pendingImport && (
+        <ImportConfirm
+          summary={pendingImport.summary}
+          onCancel={() => setPendingImport(null)}
+          onConfirm={async () => {
+            try {
+              await importAllData(pendingImport.payload)
+              const { incoming } = pendingImport.summary
+              setPendingImport(null)
+              setImportStatus({
+                ok: true,
+                // Глагол впереди намеренно: «1 поездка загружено» —
+                // рассогласование, а безличное «загружено 1 поездка»
+                // работает для всех чисел разом.
+                text: `Готово: из бэкапа загружено ${plural(incoming.trips, ['поездка', 'поездки', 'поездок'])}.`,
+              })
+            } catch {
+              setPendingImport(null)
+              setImportStatus({ ok: false, text: 'Импорт не удался — база отклонила запись. Данные на устройстве не тронуты.' })
+            }
+          }}
+        />
+      )}
 
       {!trips && <p className="muted">Загрузка…</p>}
       {trips && trips.length === 0 && !showForm && !showAgent && (
@@ -75,6 +121,87 @@ export default function TripList() {
       )}
 
       <BuildStamp />
+    </div>
+  )
+}
+
+/**
+ * Подтверждение перед импортом бэкапа.
+ *
+ * Импорт кладёт записи по их собственным id, то есть может молча заменить
+ * то, что уже есть на устройстве. Раньше он делал это без единого вопроса:
+ * выбрал файл — и часть поездок уже перезаписана, откатить нечем.
+ *
+ * Поэтому здесь показывается цена решения до нажатия: что лежит в файле,
+ * что добавится, что заменится целиком и — отдельно и заметнее всего —
+ * какие посторонние поездки пострадают от совпадения id.
+ */
+function ImportConfirm({ summary, onCancel, onConfirm }) {
+  const [busy, setBusy] = useState(false)
+  const { incoming, replacedTrips, touchedTrips, newTrips, exportedAt } = summary
+
+  const contents = [
+    plural(incoming.trips, ['поездка', 'поездки', 'поездок']),
+    incoming.days && plural(incoming.days, ['день', 'дня', 'дней']),
+    incoming.pois && plural(incoming.pois, ['точка', 'точки', 'точек']),
+    incoming.tickets && plural(incoming.tickets, ['билет', 'билета', 'билетов']),
+    incoming.packingItems && plural(incoming.packingItems, ['вещь', 'вещи', 'вещей']),
+    incoming.budgetEntries && plural(incoming.budgetEntries, ['трата', 'траты', 'трат']),
+  ].filter(Boolean)
+
+  const destructive = replacedTrips.length > 0 || touchedTrips.length > 0
+
+  async function confirm() {
+    setBusy(true)
+    await onConfirm()
+  }
+
+  return (
+    <div className={`card${destructive ? ' danger-card' : ''}`}>
+      <div>
+        <h2>Загрузить бэкап?</h2>
+        <p className="agent-hint">
+          В файле: {contents.join(', ')}
+          {exportedAt ? ` · сделан ${formatDay(exportedAt.slice(0, 10))}` : ''}.
+        </p>
+
+        {newTrips > 0 && (
+          <p className="agent-hint">
+            Добавится {plural(newTrips, ['новая поездка', 'новые поездки', 'новых поездок'])}.
+          </p>
+        )}
+
+        {replacedTrips.length > 0 && (
+          <p className="agent-hint">
+            Заменятся целиком: {replacedTrips.map((t) => `«${t.title}»`).join(', ')}.
+          </p>
+        )}
+
+        {/* Самое опасное место: запись с чужого устройства встаёт на место
+            записи, принадлежащей другой поездке, и та тихо портится. */}
+        {touchedTrips.length > 0 && (
+          <p className="agent-hint">
+            ⚠️ Пострадают поездки, которых в бэкапе нет: {touchedTrips
+              .map((t) => `«${t.title}» — ${plural(t.rows, ['запись', 'записи', 'записей'])}`)
+              .join(', ')}. Совпали внутренние номера записей.
+          </p>
+        )}
+
+        {!destructive && (
+          <p className="agent-hint">Ничего из того, что уже есть на устройстве, не пострадает.</p>
+        )}
+
+        {destructive && (
+          <p className="agent-hint">Отменить это будет нельзя. Если жалко — сначала сделай «Экспорт».</p>
+        )}
+      </div>
+
+      <div className="row">
+        <button className={destructive ? 'danger' : ''} onClick={confirm} disabled={busy}>
+          {busy ? 'Загружаю…' : destructive ? 'Да, заменить' : 'Загрузить'}
+        </button>
+        <button className="secondary" onClick={onCancel} disabled={busy}>Отмена</button>
+      </div>
     </div>
   )
 }

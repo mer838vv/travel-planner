@@ -827,6 +827,34 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
 .weather-day .emoji { font-size: 23px; line-height: 1.2; }
 .weather-day .rain { color: var(--accent); font-size: 12px; }
 
+/* Объяснение вместо прогноза: не карточки в ряд, а строка текста, которую
+   видно целиком без горизонтальной прокрутки. */
+.weather-strip.weather-note {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  overflow-x: visible;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--glass-sunk);
+  box-shadow: 0 0 0 1px var(--glass-hairline);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.weather-strip.weather-note span { flex: 1 1 auto; min-width: 0; }
+
+/* Хвост поездки за горизонтом: приглушён, чтобы не спорить с днями */
+.weather-tail {
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  max-width: 96px;
+}
+
 /* ---------- Билеты и бюджет ---------- */
 
 .ticket-list, .budget-list {
