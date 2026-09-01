@@ -83,16 +83,30 @@ test('те же два часа на одном билете риском не �
   assert.equal(connection.level, 'ok')
 })
 
-test('меньше часа или смена аэропорта — критично', () => {
+test('слишком короткая стыковка — критично', () => {
   const impossible = structuredClone(TICKETS)
   impossible[0].flight.departLocal = '2026-09-01T11:20'  // 35 минут
   assert.equal(findConnections(parseSegments(impossible))[0].level, 'critical')
+})
 
-  const otherAirport = structuredClone(TICKETS)
-  otherAirport[0].flight.from = { iata: 'SAW', name: 'Сабиха Гёкчен', tz: 'Europe/Istanbul' }
-  const c = findConnections(parseSegments(otherAirport))[0]
-  assert.equal(c.changesAirport, true)
-  assert.equal(c.level, 'critical', 'прилёт в один аэропорт, вылет из другого')
+test('смена аэропорта не критична сама по себе, а поднимает порог', () => {
+  // Раньше любая смена аэропорта помечалась критической независимо от
+  // запаса, и семь часов между аэропортами выглядели так же безнадёжно,
+  // как сорок минут. Теперь это надбавка в два часа к обоим порогам:
+  // на дорогу, регистрацию заново и контроль.
+  const move = (departLocal) => {
+    const t = structuredClone(TICKETS)
+    t[0].flight.from = { iata: 'SAW', name: 'Сабиха Гёкчен', tz: 'Europe/Istanbul' }
+    t[0].flight.departLocal = departLocal
+    return findConnections(parseSegments(t))[0]
+  }
+
+  const roomy = move('2026-09-01T15:50')   // 5 ч 05 мин
+  assert.equal(roomy.changesAirport, true)
+  assert.equal(roomy.level, 'ok', 'пяти часов на переезд между аэропортами хватает')
+
+  assert.equal(move('2026-09-01T14:00').level, 'risky', '3 ч 15 мин — впритык')
+  assert.equal(move('2026-09-01T12:00').level, 'critical', '1 ч 15 мин — не успеть')
 })
 
 test('адрес для такси содержит терминал и не содержит кода', () => {

@@ -2,6 +2,7 @@
 // от Vite, не достраивает расширения сам.
 import { db, dateRangeDays } from '../db.js'
 import { normalizeTransfer } from './transfer.js'
+import { normalizeTransit } from './transit.js'
 
 /**
  * Приём готового плана поездки от агента (Claude Code со скиллами
@@ -107,6 +108,7 @@ function normalizeFlight(raw) {
     leaveAtLocal: localTime(raw.leaveAtLocal),
     leaveNote: raw.leaveNote ? String(raw.leaveNote) : null,
     transfer: normalizeTransfer(raw.transfer),
+    transit: normalizeTransit(raw.transit),
   }
 }
 

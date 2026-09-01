@@ -39,6 +39,7 @@ export function parseSegments(tickets = []) {
         leaveAtLocal: f.leaveAtLocal || null,
         leaveNote: f.leaveNote || null,
         transfer: f.transfer || null,
+        transit: f.transit || null,
       }
     })
     .sort((a, b) => {
@@ -61,7 +62,16 @@ export function pickCurrentSegment(segments, now = new Date()) {
 // ответственность за стыковку на перевозчике.
 const SEPARATE_TICKET_SAFE_MS = 3 * 3600_000
 const SINGLE_TICKET_SAFE_MS = 90 * 60_000
-const IMPOSSIBLE_MS = 60 * 60_000
+
+// Ниже этого не успеть почти никогда — уже физически, а не по осторожности.
+const SEPARATE_TICKET_MIN_MS = 60 * 60_000
+const SINGLE_TICKET_MIN_MS = 45 * 60_000
+
+// Смена аэропорта не приговор, а надбавка ко времени: выход в город,
+// паспортный контроль, дорога и регистрация заново. Раньше любая такая
+// стыковка помечалась как критическая независимо от запаса — и семь часов
+// между аэропортами выглядели так же безнадёжно, как сорок минут.
+const AIRPORT_CHANGE_EXTRA_MS = 2 * 3600_000
 
 /**
  * Стыковки между соседними рейсами: длительность, смена аэропорта и оценка
@@ -79,10 +89,12 @@ export function findConnections(segments) {
     const changesAirport = arrive.to?.iata !== depart.from?.iata
     const separateTickets = Boolean(arrive.pnr && depart.pnr && arrive.pnr !== depart.pnr)
 
-    const safeMs = separateTickets ? SEPARATE_TICKET_SAFE_MS : SINGLE_TICKET_SAFE_MS
+    const extra = changesAirport ? AIRPORT_CHANGE_EXTRA_MS : 0
+    const safeMs = (separateTickets ? SEPARATE_TICKET_SAFE_MS : SINGLE_TICKET_SAFE_MS) + extra
+    const minMs = (separateTickets ? SEPARATE_TICKET_MIN_MS : SINGLE_TICKET_MIN_MS) + extra
 
     let level = 'ok'
-    if (gapMs < IMPOSSIBLE_MS || changesAirport) level = 'critical'
+    if (gapMs < minMs) level = 'critical'
     else if (gapMs < safeMs) level = 'risky'
 
     out.push({
@@ -93,6 +105,9 @@ export function findConnections(segments) {
       changesAirport,
       separateTickets,
       level,
+      // Проверенные данные о транзите принадлежат прилетающему рейсу: его
+      // карточка и висит перед глазами, пока человек летит к пересадке.
+      transit: arrive.transit || null,
       from: arrive,
       to: depart,
     })

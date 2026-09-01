@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { countdown, localClock, formatDuration } from '../utils/time'
+import { formatDay } from '../utils/formatDate'
 import { taxiAddress } from '../utils/flights'
 import TransferCard from './TransferCard'
 
@@ -120,24 +121,104 @@ function Deadline({ label, at, clock, note, now, accent }) {
   )
 }
 
-// По раздельным билетам транзитной зоной обычно не обойтись: нужно выйти
-// через паспортный контроль в страну пересадки и зайти на вылет заново.
-// Одна ручная кладь тут не помогает — только избавляет от ленты багажа.
-const SEPARATE_TICKET_LOOP =
-  'Билеты разными бронями. Скорее всего придётся выйти через паспортный контроль и зайти на вылет заново — транзитная зона обычно только для единого билета, и ручная кладь от этого не спасает. Посадочный на второй рейс получай сам, заранее.'
+/**
+ * Что на самом деле меняют раздельные билеты.
+ *
+ * Раньше здесь стояло утверждение, что по разным броням придётся выйти через
+ * паспортный контроль и зайти на вылет заново, а ручная кладь «от этого не
+ * спасает». Это оказалось неправдой: в Стамбуле трансферный контроль
+ * проходится по посадочному на второй рейс, без въезда в Турцию, и разные
+ * брони этому не мешают.
+ *
+ * Раздельные билеты меняют три вещи — и ни одна из них не запрещает транзит.
+ * Ручная кладь как раз снимает главное препятствие: сдаваемый багаж пришлось
+ * бы получать в зале выдачи, а он за границей.
+ *
+ * Пройдёшь ли конкретный аэропорт без въезда — вопрос к аэропорту и паспорту,
+ * а не к числу броней. Проверяет это скилл `transit-check`; пока проверки
+ * нет, приложение так и говорит, вместо того чтобы пугать или обнадёживать.
+ */
+const SEPARATE_TICKET_FACTS =
+  'Билеты разными бронями: багаж не проследует сам, посадочный на второй рейс получи заранее онлайн и сохрани офлайн, а при опоздании первого рейса пересаживать никто не обязан.'
+
+function timeText(connection, gap) {
+  if (connection.changesAirport) {
+    return `Пересадка со сменой аэропорта: прилёт в ${connection.from.to?.iata}, вылет из ${connection.to.from?.iata}. Нужен переезд между аэропортами, ${gap} на всё.`
+  }
+  if (connection.level === 'critical') return `На пересадку всего ${gap} — этого, скорее всего, не хватит.`
+  if (connection.level === 'risky') {
+    return connection.separateTickets
+      ? `На пересадку ${gap} — запас небольшой, а на раздельных билетах советуют закладывать от трёх часов.`
+      : `На пересадку ${gap} — запас небольшой, но билет единый: при опоздании пересадит перевозчик.`
+  }
+  return `На пересадку ${gap} — запас есть.`
+}
 
 function ConnectionNote({ connection }) {
   const gap = formatDuration(connection.gapMs)
 
-  const text = connection.changesAirport
-    ? `Пересадка со сменой аэропорта: прилёт в ${connection.from.to?.iata}, вылет из ${connection.to.from?.iata}. Нужен переезд между аэропортами, ${gap} на всё.`
-    : connection.level === 'critical'
-      ? `На пересадку всего ${gap}. Этого почти наверняка не хватит.${connection.separateTickets ? ' ' + SEPARATE_TICKET_LOOP : ''}`
-      : connection.level === 'risky'
-        ? `На пересадку ${gap}. ${connection.separateTickets
-            ? `${SEPARATE_TICKET_LOOP} Если первый рейс опоздает, пересаживать тебя никто не обязан — на таких стыковках советуют закладывать от трёх часов.`
-            : 'Запас небольшой, но билет единый — при опоздании пересадит перевозчик.'}`
-        : `На пересадку ${gap} — запас есть.${connection.separateTickets ? ' ' + SEPARATE_TICKET_LOOP : ''}`
+  return (
+    <div className={`connection-note ${connection.level}`}>
+      <p>{timeText(connection, gap)}</p>
+      {connection.separateTickets && <p>{SEPARATE_TICKET_FACTS}</p>}
+      <TransitNote transit={connection.transit} airport={connection.airport} />
+    </div>
+  )
+}
 
-  return <div className={`connection-note ${connection.level}`}>{text}</div>
+/**
+ * Проверенный транзит — или честное признание, что проверки не было.
+ *
+ * Отдельный блок, а не строчка в общем тексте: это единственное место, где
+ * приложение говорит о границе, и человек должен видеть, на чём основано
+ * утверждение — дату проверки и источник.
+ */
+function TransitNote({ transit, airport }) {
+  if (!transit || transit.verdict === 'unknown') {
+    return (
+      <p className="transit-unknown">
+        Пройдёшь ли транзитную зону без въезда в страну — зависит от аэропорта и
+        паспорта{airport?.iata ? ` (${airport.iata})` : ''}. Не проверено.
+      </p>
+    )
+  }
+
+  const ok = transit.verdict === 'ok'
+
+  return (
+    <div className={`transit-note ${ok ? 'ok' : 'entry'}`}>
+      <strong>
+        {ok
+          ? `Транзит без въезда: проходится${transit.airport ? ` в ${transit.airport}` : ''}`
+          : 'Придётся въезжать в страну пересадки'}
+      </strong>
+
+      {transit.steps.length > 0 && (
+        <ol className="transit-steps">
+          {transit.steps.map((step, i) => <li key={i}>{step}</li>)}
+        </ol>
+      )}
+
+      {transit.boardingPass && <p>🎫 {transit.boardingPass}</p>}
+      {transit.baggage && <p>🧳 {transit.baggage}</p>}
+      {transit.visaNote && <p>🛂 {transit.visaNote}</p>}
+
+      {transit.warnings.map((warning, i) => (
+        <p key={i} className="transit-warning">⚠️ {warning}</p>
+      ))}
+
+      {/* Дата и источник обязательны: транзитные правила меняются, и без
+          них это утверждение ничем не отличается от догадки. */}
+      <p className="transit-checked">
+        {transit.checkedOn && `Проверено ${formatDay(transit.checkedOn)}`}
+        {transit.citizenship && ` · паспорт ${transit.citizenship}`}
+        {transit.sources.map((s, i) => (
+          <span key={i}>
+            {' · '}
+            <a href={s.url} target="_blank" rel="noreferrer">{s.title}</a>
+          </span>
+        ))}
+      </p>
+    </div>
+  )
 }

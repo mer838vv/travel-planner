@@ -668,6 +668,61 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
   .connection-note.risky { color: var(--warm-hi); }
 }
 
+.connection-note p { margin: 0 0 8px; }
+.connection-note p:last-child { margin-bottom: 0; }
+
+/* Признание «не проверено» — приглушённое: это отсутствие сведений,
+   а не тревога. Пугать здесь нечем, но и молчать нельзя. */
+.transit-unknown {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 13.5px;
+  border-top: 1px solid var(--glass-hairline);
+  padding-top: 8px;
+}
+
+/* Проверенный ответ — отдельная плашка внутри заметки о стыковке:
+   у него другой вес, чем у рассуждения про время. */
+.transit-note {
+  margin-top: 10px;
+  padding: 11px 13px;
+  border-radius: var(--r-sm);
+  background: var(--glass-sunk);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.transit-note.ok { box-shadow: inset 3px 0 0 var(--green); }
+.transit-note.entry { box-shadow: inset 3px 0 0 var(--warm-deep); }
+
+.transit-note strong { display: block; margin-bottom: 7px; }
+.transit-note p { margin: 0 0 6px; }
+.transit-note p:last-child { margin-bottom: 0; }
+
+.transit-steps {
+  margin: 0 0 8px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.transit-warning { color: var(--warm-deep); }
+
+.transit-checked {
+  color: var(--faint);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.transit-checked a { color: inherit; }
+
+@media (prefers-color-scheme: dark) {
+  .transit-warning { color: var(--warm-hi); }
+}
+
 /* ---------- Трансфер в аэропорт ---------- */
 
 .transfer-card {
