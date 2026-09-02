@@ -8,6 +8,8 @@ import { resetAppCache } from '../pwa'
 import AgentImport from '../components/AgentImport'
 import { formatDay, formatRange } from '../utils/formatDate'
 import { plural } from '../utils/plural'
+import { todayIso } from '../utils/weather'
+import { daysUntil } from '../utils/tripCalendar'
 
 export default function TripList() {
   const trips = useLiveQuery(() => db.trips.orderBy('startDate').toArray(), [])
@@ -89,15 +91,7 @@ export default function TripList() {
       )}
 
       <ul className="trip-list">
-        {trips?.map((trip) => (
-          <li key={trip.id}>
-            <Link to={`/trip/${trip.id}`}>
-              <strong>{trip.title}</strong>
-              <span className="trip-dates">{formatRange(trip.startDate, trip.endDate)}</span>
-              {trip.destinationName && <span className="muted">{trip.destinationName}</span>}
-            </Link>
-          </li>
-        ))}
+        {trips?.map((trip) => <TripListItem key={trip.id} trip={trip} />)}
       </ul>
 
       {!showForm && !showAgent && (
@@ -122,6 +116,44 @@ export default function TripList() {
 
       <BuildStamp />
     </div>
+  )
+}
+
+function TripListItem({ trip }) {
+  const packing = useLiveQuery(
+    () => db.packingItems.where('tripId').equals(trip.id).toArray(),
+    [trip.id]
+  )
+  const today = todayIso()
+  const untilStart = daysUntil(trip.startDate, today)
+  const untilEnd = daysUntil(trip.endDate, today)
+  const packed = packing?.filter((item) => item.packed).length || 0
+  const documents = packing?.filter((item) => item.category === 'Документы') || []
+  const documentsReady = documents.filter((item) => item.packed).length
+
+  let status = ''
+  if (untilStart > 0) status = `через ${plural(untilStart, ['день', 'дня', 'дней'])}`
+  else if (untilEnd != null && untilEnd >= 0) status = 'сейчас в поездке'
+  else if (untilEnd != null) status = 'поездка завершена'
+
+  return (
+    <li>
+      <Link to={`/trip/${trip.id}`}>
+        <strong>{trip.title}</strong>
+        <span className="trip-dates">{formatRange(trip.startDate, trip.endDate)}{status ? ` · ${status}` : ''}</span>
+        {trip.destinationName && <span className="muted">{trip.destinationName}</span>}
+        {packing && packing.length > 0 && (
+          <span className="trip-readiness">
+            <span className={documents.length > 0 && documentsReady === documents.length ? 'ready' : ''}>
+              {documents.length > 0 ? `Документы ${documentsReady}/${documents.length}` : 'Документы не добавлены'}
+            </span>
+            <span className={packed === packing.length ? 'ready' : ''}>
+              Сборы {packed}/{packing.length}
+            </span>
+          </span>
+        )}
+      </Link>
+    </li>
   )
 }
 

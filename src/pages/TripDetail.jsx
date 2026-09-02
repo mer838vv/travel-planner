@@ -11,6 +11,8 @@ import FlightCard from '../components/FlightCard'
 import { formatRange } from '../utils/formatDate'
 import { plural } from '../utils/plural'
 import { parseSegments, pickCurrentSegment, findConnections } from '../utils/flights'
+import { exportTripData } from '../utils/backup'
+import TripReadiness from '../components/TripReadiness'
 
 const TABS = [
   { key: 'route', label: 'Маршрут' },
@@ -25,6 +27,8 @@ export default function TripDetail() {
   const trip = useLiveQuery(() => db.trips.get(tripId), [tripId])
   const tickets = useLiveQuery(() => db.tickets.where('tripId').equals(tripId).toArray(), [tripId])
   const [tab, setTab] = useState('route')
+  const [exporting, setExporting] = useState(false)
+  const [exportError, setExportError] = useState('')
 
   const segments = parseSegments(tickets || [])
   const current = pickCurrentSegment(segments)
@@ -32,6 +36,18 @@ export default function TripDetail() {
   const connection = findConnections(segments).find((c) => c.from.ticketId === current?.ticketId)
 
   if (!trip) return <div className="page"><p>Загрузка…</p></div>
+
+  async function exportTrip() {
+    setExporting(true)
+    setExportError('')
+    try {
+      await exportTripData(trip.id, trip.title)
+    } catch (err) {
+      setExportError(err?.userFacing ? err.message : 'Не удалось скачать поездку. Попробуй ещё раз.')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   return (
     <div className="page">
@@ -41,7 +57,16 @@ export default function TripDetail() {
           <h1>{trip.title}</h1>
           <p className="muted">{formatRange(trip.startDate, trip.endDate)}{trip.destinationName ? ` · ${trip.destinationName}` : ''}</p>
         </div>
+        <div className="header-actions">
+          <button className="secondary" onClick={exportTrip} disabled={exporting}>
+            {exporting ? 'Готовлю файл…' : 'Скачать поездку'}
+          </button>
+        </div>
       </div>
+
+      {exportError && <p className="error-text">{exportError}</p>}
+
+      <TripReadiness trip={trip} onOpenTab={setTab} />
 
       <FlightCard segment={current} connection={connection} />
 
@@ -51,7 +76,7 @@ export default function TripDetail() {
 
       <nav className="tabs">
         {TABS.map((t) => (
-          <button key={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
+          <button key={t.key} data-tab={t.key} className={tab === t.key ? 'active' : ''} onClick={() => setTab(t.key)}>
             {t.label}
           </button>
         ))}
@@ -115,7 +140,7 @@ function DeleteTrip({ trip }) {
           {parts.length
             ? `Вместе с поездкой исчезнут ${parts.join(', ')}. Отменить это будет нельзя.`
             : 'Отменить это будет нельзя.'}
-          {' '}Если жалко — сначала сделай «Экспорт» на главном экране.
+          {' '}Если жалко — сначала нажми «Скачать поездку» наверху.
         </p>
       </div>
       <div className="row">

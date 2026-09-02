@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import '../leafletIconFix'
 import { db } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { formatShort } from '../utils/formatDate'

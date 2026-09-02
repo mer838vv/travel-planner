@@ -3,7 +3,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 
 import { db } from '../src/db.js'
-import { readBackup, analyzeBackup, importAllData } from '../src/utils/backup.js'
+import { readBackup, analyzeBackup, importAllData, buildTripBackup } from '../src/utils/backup.js'
 
 /** Подделка File: readBackup нужен только метод text(). */
 function file(content) {
@@ -151,4 +151,39 @@ test('битые записи в массивах не роняют разбор
 
   assert.equal(summary.incoming.trips, 1)
   assert.equal(summary.incoming.pois, 1)
+})
+
+test('бэкап одной поездки не захватывает данные другой', async () => {
+  await db.trips.bulkAdd([
+    { id: 1, title: 'Рим' },
+    { id: 2, title: 'Париж' },
+  ])
+  await db.days.bulkAdd([
+    { id: 11, tripId: 1, date: '2026-10-03' },
+    { id: 22, tripId: 2, date: '2026-11-04' },
+  ])
+  await db.pois.bulkAdd([
+    { id: 111, tripId: 1, dayId: 11, name: 'Колизей' },
+    { id: 222, tripId: 2, dayId: 22, name: 'Лувр' },
+  ])
+  await db.tickets.bulkAdd([
+    { id: 1111, tripId: 1, title: 'Рейс в Рим' },
+    { id: 2222, tripId: 2, title: 'Рейс в Париж' },
+  ])
+
+  const payload = await buildTripBackup(1)
+
+  assert.deepEqual(payload.trips.map((row) => row.title), ['Рим'])
+  assert.deepEqual(payload.days.map((row) => row.tripId), [1])
+  assert.deepEqual(payload.pois.map((row) => row.name), ['Колизей'])
+  assert.deepEqual(payload.tickets.map((row) => row.title), ['Рейс в Рим'])
+  assert.equal(payload.tickets[0].fileBlob, undefined)
+  assert.equal(payload.tickets[0].fileData, null)
+})
+
+test('бэкап отсутствующей поездки завершается понятной ошибкой', async () => {
+  await assert.rejects(
+    () => buildTripBackup(404),
+    (err) => err.userFacing && /не найдена/.test(err.message)
+  )
 })

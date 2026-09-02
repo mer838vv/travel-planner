@@ -4,8 +4,6 @@ import { createRoot } from 'react-dom/client'
 // где нет сервера, умеющего отдать index.html на произвольный путь — с
 // BrowserRouter перезагрузка страницы поездки вернула бы 404.
 import { HashRouter } from 'react-router-dom'
-import 'leaflet/dist/leaflet.css'
-import './leafletIconFix'
 import './pwa'
 import './index.css'
 import App from './App.jsx'

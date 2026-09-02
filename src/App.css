@@ -32,6 +32,16 @@
   padding: 26px 16px 60px;
 }
 
+.loading-card {
+  width: fit-content;
+  margin: 40px auto;
+  padding: 12px 18px;
+  color: var(--text);
+  background: var(--glass);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+}
+
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -51,6 +61,66 @@
 .page-header p { color: var(--on-sky-muted); }
 
 .header-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+
+/* ---------- Готовность к поездке ---------- */
+
+.readiness-card { margin-bottom: 18px; }
+
+.readiness-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.readiness-head h2 { margin: 2px 0 0; }
+
+.eyebrow {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.readiness-item {
+  min-height: 82px;
+  padding: 12px;
+  color: var(--text);
+  background: var(--glass-sunk);
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sunk);
+  text-align: left;
+}
+
+.readiness-item strong,
+.readiness-item span { display: block; }
+.readiness-item strong { font-size: 20px; margin-bottom: 3px; }
+.readiness-item span { color: var(--muted); font-size: 13px; line-height: 1.3; }
+
+.readiness-alert {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--warm) 15%, transparent);
+  border-radius: var(--r-sm);
+  font-size: 14px;
+}
+
+@media (max-width: 560px) {
+  .readiness-grid { grid-template-columns: 1fr; }
+  .readiness-item { min-height: 0; }
+}
 
 .back-link {
   display: inline-block;
@@ -240,6 +310,28 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
 .trip-list strong { font-size: 17px; letter-spacing: -0.015em; }
 
 .trip-dates { font-size: 14px; font-weight: 700; color: var(--accent); }
+
+.trip-readiness {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+}
+
+.trip-readiness > span {
+  padding: 4px 8px;
+  color: var(--muted);
+  background: var(--glass-sunk);
+  border: 1px solid var(--glass-hairline);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trip-readiness > span.ready {
+  color: var(--green-deep);
+  background: color-mix(in srgb, var(--green) 10%, var(--glass-sunk));
+}
 
 /* ---------- Подсказки поиска ---------- */
 

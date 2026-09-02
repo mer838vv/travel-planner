@@ -16,16 +16,7 @@ async function base64ToBlob(dataUrl) {
   return res.blob()
 }
 
-export async function exportAllData() {
-  const [trips, days, pois, tickets, packingItems, budgetEntries] = await Promise.all([
-    db.trips.toArray(),
-    db.days.toArray(),
-    db.pois.toArray(),
-    db.tickets.toArray(),
-    db.packingItems.toArray(),
-    db.budgetEntries.toArray(),
-  ])
-
+async function makePayload({ trips, days, pois, tickets, packingItems, budgetEntries }) {
   const ticketsSerialized = await Promise.all(
     tickets.map(async (t) => ({
       ...t,
@@ -34,7 +25,7 @@ export async function exportAllData() {
     }))
   )
 
-  const payload = {
+  return {
     exportedAt: new Date().toISOString(),
     version: 1,
     trips,
@@ -44,14 +35,56 @@ export async function exportAllData() {
     packingItems,
     budgetEntries,
   }
+}
 
+function downloadPayload(payload, filename) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `travel-planner-backup-${new Date().toISOString().slice(0, 10)}.json`
+  a.download = filename
   a.click()
   URL.revokeObjectURL(url)
+}
+
+export async function exportAllData() {
+  const payload = await makePayload({
+    trips: await db.trips.toArray(),
+    days: await db.days.toArray(),
+    pois: await db.pois.toArray(),
+    tickets: await db.tickets.toArray(),
+    packingItems: await db.packingItems.toArray(),
+    budgetEntries: await db.budgetEntries.toArray(),
+  })
+
+  downloadPayload(payload, `travel-planner-backup-${new Date().toISOString().slice(0, 10)}.json`)
+}
+
+/** Собирает переносимый бэкап только одной поездки и всех её данных. */
+export async function buildTripBackup(tripId) {
+  const trip = await db.trips.get(tripId)
+  if (!trip) fail('Поездка не найдена — возможно, она уже была удалена.')
+
+  const [days, pois, tickets, packingItems, budgetEntries] = await Promise.all([
+    db.days.where('tripId').equals(tripId).toArray(),
+    db.pois.where('tripId').equals(tripId).toArray(),
+    db.tickets.where('tripId').equals(tripId).toArray(),
+    db.packingItems.where('tripId').equals(tripId).toArray(),
+    db.budgetEntries.where('tripId').equals(tripId).toArray(),
+  ])
+
+  return makePayload({ trips: [trip], days, pois, tickets, packingItems, budgetEntries })
+}
+
+export async function exportTripData(tripId, title = 'trip') {
+  const payload = await buildTripBackup(tripId)
+  const safeTitle = String(title)
+    .trim()
+    .replace(/[^\p{L}\p{N}._-]+/gu, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60) || 'trip'
+
+  downloadPayload(payload, `travel-planner-${safeTitle}-${new Date().toISOString().slice(0, 10)}.json`)
 }
 
 function fail(message) {
