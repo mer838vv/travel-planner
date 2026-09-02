@@ -3,6 +3,7 @@
 import { db, dateRangeDays } from '../db.js'
 import { normalizeTransfer } from './transfer.js'
 import { normalizeTransit } from './transit.js'
+import { normalizePoiAnalysis, normalizeRouteSources, normalizeRouteStart } from './routeGuide.js'
 
 /**
  * Приём готового плана поездки от агента (Claude Code со скиллами
@@ -143,6 +144,17 @@ export async function applyAgentPayload(data) {
         // День вне диапазона поездки молча пропускаем, а не роняем весь импорт.
         if (!dayId) continue
 
+        await db.days.update(dayId, {
+          routeStart: normalizeRouteStart(day.routeStart),
+          routeSummary: day.routeSummary ? String(day.routeSummary) : null,
+          routeRationale: day.routeRationale ? String(day.routeRationale) : null,
+          breakSuggestion: day.breakSuggestion ? String(day.breakSuggestion) : null,
+          walkingDistanceKm: num(day.walkingDistanceKm),
+          walkingDurationMin: num(day.walkingDurationMin),
+          researchedAt: day.researchedAt ? String(day.researchedAt) : null,
+          routeSources: normalizeRouteSources(day.routeSources),
+        })
+
         let order = 0
         for (const poi of day.pois || []) {
           if (!poi?.name) continue
@@ -162,6 +174,8 @@ export async function applyAgentPayload(data) {
             visitTime: poi.visitTime ? String(poi.visitTime) : null,
             durationMin: num(poi.durationMin),
             cost: poi.cost != null ? String(poi.cost) : null,
+            kind: poi.kind ? String(poi.kind) : null,
+            analysis: normalizePoiAnalysis(poi.analysis),
             order: order++,
           })
           summary.pois++

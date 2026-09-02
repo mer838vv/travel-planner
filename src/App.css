@@ -468,6 +468,61 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
   flex-wrap: wrap;
 }
 
+.route-origin,
+.route-origin-editor,
+.route-quality,
+.route-rationale {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--glass-hairline);
+  border-radius: var(--r-md);
+  background: var(--glass-sunk);
+}
+
+.route-origin {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.route-origin div { min-width: 0; }
+.route-origin span,
+.route-origin strong { display: block; }
+.route-origin span { color: var(--muted); font-size: 12px; }
+.route-origin strong { margin-top: 2px; font-size: 14px; }
+
+.route-origin-editor > p {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.route-origin-types { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 10px; }
+.route-origin-types button { min-height: 34px; padding: 6px 11px; font-size: 13px; }
+.route-origin-types button.active { color: #fff; background: var(--accent); }
+
+.route-quality { display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+.route-quality.ready { border-color: color-mix(in srgb, var(--green) 48%, transparent); }
+.route-quality.needs-work { border-color: color-mix(in srgb, var(--warm) 48%, transparent); }
+.route-quality span { color: var(--muted); line-height: 1.45; }
+
+.route-summary { margin: 14px 0 0; line-height: 1.55; }
+.route-rationale strong { font-size: 13px; }
+.route-rationale p { margin: 5px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+.route-sources {
+  display: flex;
+  gap: 7px 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.route-sources a,
+.poi-source { color: var(--accent); font-weight: 650; }
+
 .google-route-button {
   display: inline-flex;
   align-items: center;
@@ -551,6 +606,10 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
   .walking-route-actions,
   .google-route-button { width: 100%; }
   .walking-stops { grid-template-columns: 1fr; }
+  .route-origin { align-items: flex-start; }
+  .route-origin-editor .row { flex-direction: column; }
+  .route-origin-editor .row > * { width: 100%; }
+  .poi-card .poi-guide { margin-left: 0; }
 }
 
 /* ---------- Маршрут ---------- */
@@ -713,6 +772,22 @@ button.link-reset:active:not(:disabled) { transform: none; box-shadow: none; }
 }
 
 .poi-description:active { color: var(--text); }
+
+.poi-expanded { padding-bottom: 2px; }
+.poi-guide {
+  display: grid;
+  gap: 12px;
+  margin: 14px 0 0 39px;
+  padding-top: 14px;
+  border-top: 1px solid var(--glass-hairline);
+}
+
+.poi-guide section h4 { margin: 0 0 4px; font-size: 13px; }
+.poi-guide section p,
+.poi-guide section ul { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.poi-guide section ul { padding-left: 19px; }
+.poi-guide section li + li { margin-top: 4px; }
+.poi-source { width: fit-content; font-size: 12px; }
 
 /* ---------- Карточка ближайшего рейса ---------- */
 

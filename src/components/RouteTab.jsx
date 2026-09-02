@@ -8,6 +8,7 @@ import { searchPlace } from '../utils/geocode'
 import { formatShort } from '../utils/formatDate'
 import { resolveKind, kindMeta, isLogistics } from '../utils/poiKind'
 import { splitWalkingRoute, googleMapsWalkingUrl, visitDurationText } from '../utils/walkingRoute'
+import { analyzeRouteQuality, normalizeRouteStart, routeStartLabel } from '../utils/routeGuide'
 import DeleteButton from './DeleteButton'
 
 export default function RouteTab({ trip }) {
@@ -15,6 +16,7 @@ export default function RouteTab({ trip }) {
   const [activeDayId, setActiveDayId] = useState(null)
 
   const currentDayId = activeDayId ?? days?.[0]?.id
+  const currentDay = days?.find((day) => day.id === currentDayId)
   const pois = useLiveQuery(
     () => (currentDayId ? db.pois.where('dayId').equals(currentDayId).sortBy('order') : []),
     [currentDayId]
@@ -22,7 +24,10 @@ export default function RouteTab({ trip }) {
 
   if (!days) return <p>Загрузка…</p>
 
-  const mapCenter = pois?.length
+  const routeStart = normalizeRouteStart(currentDay?.routeStart)
+  const mapCenter = routeStart
+    ? [routeStart.lat, routeStart.lon]
+    : pois?.length
     ? [pois[0].lat, pois[0].lon]
     : trip.destinationLat
       ? [trip.destinationLat, trip.destinationLon]
@@ -43,7 +48,7 @@ export default function RouteTab({ trip }) {
         ))}
       </div>
 
-      {pois?.length >= 2 && <WalkingRouteCard pois={pois} />}
+      {currentDay && <WalkingRouteCard key={currentDay.id} day={currentDay} pois={pois || []} />}
 
       <div className="route-layout">
         <div className="poi-list">
@@ -61,6 +66,11 @@ export default function RouteTab({ trip }) {
                 attribution='&copy; OpenStreetMap contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
+              {routeStart && (
+                <Marker position={[routeStart.lat, routeStart.lon]}>
+                  <Popup><strong>Старт: {routeStart.name}</strong></Popup>
+                </Marker>
+              )}
               {pois.map((poi) => (
                 <Marker key={poi.id} position={[poi.lat, poi.lon]}>
                   <Popup>
@@ -78,8 +88,12 @@ export default function RouteTab({ trip }) {
   )
 }
 
-function WalkingRouteCard({ pois }) {
-  const stages = splitWalkingRoute(pois)
+function WalkingRouteCard({ day, pois }) {
+  const quality = analyzeRouteQuality(day, pois)
+  const routePoints = quality.start
+    ? [{ id: `start-${day.id}`, ...quality.start }, ...pois]
+    : pois
+  const stages = splitWalkingRoute(routePoints)
   const duration = visitDurationText(pois)
   const visitMinutes = pois.reduce((sum, poi) => sum + (Number(poi.durationMin) || 0), 0)
   const hasFoodStop = pois.some((poi) => resolveKind(poi) === 'food')
@@ -90,7 +104,15 @@ function WalkingRouteCard({ pois }) {
         <div>
           <p className="eyebrow">Пешеходная прогулка</p>
           <h3 id="walking-route-title">{pois.length} мест по порядку</h3>
-          {duration && <p className="muted">{duration}, без учёта дороги и очередей</p>}
+          {(duration || day.walkingDistanceKm || day.walkingDurationMin) && (
+            <p className="muted">
+              {[
+                duration,
+                day.walkingDistanceKm ? `${day.walkingDistanceKm} км пешком` : null,
+                day.walkingDurationMin ? `${day.walkingDurationMin} мин в пути` : null,
+              ].filter(Boolean).join(' · ')}
+            </p>
+          )}
         </div>
         <div className="walking-route-actions">
           {stages.map((stage, index) => (
@@ -107,6 +129,25 @@ function WalkingRouteCard({ pois }) {
         </div>
       </div>
 
+      <RouteStartEditor day={day} />
+
+      <div className={`route-quality ${quality.ready ? 'ready' : 'needs-work'}`}>
+        <strong>{quality.ready ? 'Маршрут подробно проработан' : 'Маршрут требует доработки'}</strong>
+        <span>
+          {quality.start ? routeStartLabel(quality.start) : 'Не указан отель или вокзал'}
+          {' · '}подробно раскрыто {quality.detailed} из {quality.total} мест
+          {!quality.hasRationale && ' · нет объяснения порядка'}
+        </span>
+      </div>
+
+      {day.routeSummary && <p className="route-summary">{day.routeSummary}</p>}
+      {day.routeRationale && (
+        <div className="route-rationale">
+          <strong>Почему именно такой порядок</strong>
+          <p>{day.routeRationale}</p>
+        </div>
+      )}
+
       <ol className="walking-stops">
         {pois.map((poi) => (
           <li key={poi.id}>
@@ -116,6 +157,17 @@ function WalkingRouteCard({ pois }) {
         ))}
       </ol>
 
+      {day.breakSuggestion && <p className="route-tip"><strong>Перерыв:</strong> {day.breakSuggestion}</p>}
+
+      {day.routeSources?.length > 0 && (
+        <div className="route-sources">
+          <span>{day.researchedAt ? `Проверено ${day.researchedAt}:` : 'Официальные источники:'}</span>
+          {day.routeSources.map((source) => (
+            <a key={source.url} href={source.url} target="_blank" rel="noreferrer">{source.title}</a>
+          ))}
+        </div>
+      )}
+
       {visitMinutes >= 420 && (
         <p className="route-tip">День выглядит насыщенным. Оставь запас на дорогу, очереди и незапланированные остановки.</p>
       )}
@@ -123,6 +175,85 @@ function WalkingRouteCard({ pois }) {
         <p className="route-tip">Добавь кафе или перерыв отдельной точкой — длинную прогулку проще выполнять частями.</p>
       )}
     </section>
+  )
+}
+
+function RouteStartEditor({ day }) {
+  const start = normalizeRouteStart(day.routeStart)
+  const [editing, setEditing] = useState(!start)
+  const [type, setType] = useState(start?.type || 'hotel')
+  const [query, setQuery] = useState('')
+  const [options, setOptions] = useState([])
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  async function findStart() {
+    if (!query.trim()) return
+    setBusy(true)
+    setError('')
+    try {
+      setOptions(await searchPlace(query))
+    } catch {
+      setError('Не удалось найти адрес. Проверьте интернет и попробуйте ещё раз.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function selectStart(place) {
+    await db.days.update(day.id, {
+      routeStart: {
+        type,
+        name: place.name.split(',').slice(0, 2).join(',').trim(),
+        address: place.name,
+        lat: place.lat,
+        lon: place.lon,
+      },
+    })
+    setEditing(false)
+    setOptions([])
+    setQuery('')
+  }
+
+  if (!editing && start) {
+    return (
+      <div className="route-origin">
+        <div><span>Старт маршрута</span><strong>{routeStartLabel(start)}</strong></div>
+        <button type="button" className="secondary" onClick={() => setEditing(true)}>Изменить</button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="route-origin-editor">
+      <strong>Откуда вы пойдёте</strong>
+      <p>Выберите отель, если уже заселились, или вокзал, если приезжаете на один день.</p>
+      <div className="route-origin-types" role="group" aria-label="Тип точки старта">
+        <button type="button" className={type === 'hotel' ? 'active' : 'secondary'} onClick={() => setType('hotel')}>Отель</button>
+        <button type="button" className={type === 'station' ? 'active' : 'secondary'} onClick={() => setType('station')}>Вокзал</button>
+        <button type="button" className={type === 'custom' ? 'active' : 'secondary'} onClick={() => setType('custom')}>Другое место</button>
+      </div>
+      <div className="row">
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={type === 'hotel' ? 'Название отеля и город' : type === 'station' ? 'Название вокзала и город' : 'Название или адрес'}
+          onKeyDown={(event) => event.key === 'Enter' && findStart()}
+        />
+        <button type="button" className="secondary" disabled={busy} onClick={findStart}>{busy ? 'Ищу…' : 'Найти'}</button>
+        {start && <button type="button" className="secondary" onClick={() => setEditing(false)}>Отмена</button>}
+      </div>
+      {error && <p className="form-error">{error}</p>}
+      {options.length > 0 && (
+        <ul className="suggestions">
+          {options.map((option, index) => (
+            <li key={`${option.lat}-${option.lon}-${index}`}>
+              <button type="button" onClick={() => selectStart(option)}>{option.name}</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   )
 }
 
@@ -142,6 +273,7 @@ function PoiCard({ poi }) {
   const kind = resolveKind(poi)
   const meta = kindMeta(kind)
   const logistics = isLogistics(kind)
+  const analysis = poi.analysis
 
   // День из шести развёрнутых карточек читается как простыня. Свёрнутый вид
   // даёт обзор дня целиком, а подробности открываются по нажатию. Логистика
@@ -182,9 +314,27 @@ function PoiCard({ poi }) {
             <button onClick={saveDescription}>Сохранить</button>
           </div>
         ) : (
-          <p className="poi-description" onClick={() => setEditing(true)}>
-            {poi.description || <span className="muted">Добавить описание…</span>}
-          </p>
+          <div className="poi-expanded">
+            <p className="poi-description" onClick={() => setEditing(true)}>
+              {poi.description || <span className="muted">Добавить описание…</span>}
+            </p>
+            {analysis && (
+              <div className="poi-guide">
+                {analysis.whyVisit && <section><h4>Почему это важно</h4><p>{analysis.whyVisit}</p></section>}
+                {analysis.highlights?.length > 0 && (
+                  <section><h4>Что не пропустить</h4><ul>{analysis.highlights.map((item) => <li key={item}>{item}</li>)}</ul></section>
+                )}
+                {analysis.practicalTip && <section><h4>Практически</h4><p>{analysis.practicalTip}</p></section>}
+                {analysis.bestTime && <section><h4>Лучшее время</h4><p>{analysis.bestTime}</p></section>}
+                {analysis.booking && <section><h4>Билеты и бронь</h4><p>{analysis.booking}</p></section>}
+                {analysis.sourceUrl && (
+                  <a className="poi-source" href={analysis.sourceUrl} target="_blank" rel="noreferrer">
+                    {analysis.sourceTitle || 'Официальный источник'}{analysis.checkedAt ? ` · проверено ${analysis.checkedAt}` : ''}
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
         )
       )}
     </div>

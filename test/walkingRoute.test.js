@@ -36,3 +36,11 @@ test('не строит маршрут для одной точки и счит�
   assert.deepEqual(splitWalkingRoute(points.slice(0, 1)), [])
   assert.equal(visitDurationText(points.slice(0, 3)), '3 ч на посещения')
 })
+
+test('отель или вокзал становится началом, но не достопримечательностью', () => {
+  const origin = { id: 'start', name: 'Firenze SMN', lat: 43.7765, lon: 11.2479 }
+  const url = new URL(googleMapsWalkingUrl([origin, ...points.slice(0, 2)]))
+
+  assert.equal(url.searchParams.get('origin'), '43.7765,11.2479')
+  assert.equal(url.searchParams.get('destination'), '43.78,11.26')
+})
