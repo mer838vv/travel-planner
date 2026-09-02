@@ -7,6 +7,7 @@ import { db } from '../db'
 import { searchPlace } from '../utils/geocode'
 import { formatShort } from '../utils/formatDate'
 import { resolveKind, kindMeta, isLogistics } from '../utils/poiKind'
+import { splitWalkingRoute, googleMapsWalkingUrl, visitDurationText } from '../utils/walkingRoute'
 import DeleteButton from './DeleteButton'
 
 export default function RouteTab({ trip }) {
@@ -42,6 +43,8 @@ export default function RouteTab({ trip }) {
         ))}
       </div>
 
+      {pois?.length >= 2 && <WalkingRouteCard pois={pois} />}
+
       <div className="route-layout">
         <div className="poi-list">
           {pois?.length === 0 && <div className="empty">На этот день ещё нет точек.</div>}
@@ -72,6 +75,54 @@ export default function RouteTab({ trip }) {
         </div>
       </div>
     </div>
+  )
+}
+
+function WalkingRouteCard({ pois }) {
+  const stages = splitWalkingRoute(pois)
+  const duration = visitDurationText(pois)
+  const visitMinutes = pois.reduce((sum, poi) => sum + (Number(poi.durationMin) || 0), 0)
+  const hasFoodStop = pois.some((poi) => resolveKind(poi) === 'food')
+
+  return (
+    <section className="card walking-route" aria-labelledby="walking-route-title">
+      <div className="walking-route-head">
+        <div>
+          <p className="eyebrow">Пешеходная прогулка</p>
+          <h3 id="walking-route-title">{pois.length} мест по порядку</h3>
+          {duration && <p className="muted">{duration}, без учёта дороги и очередей</p>}
+        </div>
+        <div className="walking-route-actions">
+          {stages.map((stage, index) => (
+            <a
+              key={stage.map((poi) => poi.id).join('-')}
+              className="google-route-button"
+              href={googleMapsWalkingUrl(stage)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {stages.length === 1 ? 'Открыть в Google Картах' : `Этап ${index + 1} в Google Картах`}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <ol className="walking-stops">
+        {pois.map((poi) => (
+          <li key={poi.id}>
+            <strong>{poi.name}</strong>
+            {poi.description && <span>{poi.description}</span>}
+          </li>
+        ))}
+      </ol>
+
+      {visitMinutes >= 420 && (
+        <p className="route-tip">День выглядит насыщенным. Оставь запас на дорогу, очереди и незапланированные остановки.</p>
+      )}
+      {!hasFoodStop && (visitMinutes >= 300 || pois.length >= 5) && (
+        <p className="route-tip">Добавь кафе или перерыв отдельной точкой — длинную прогулку проще выполнять частями.</p>
+      )}
+    </section>
   )
 }
 
